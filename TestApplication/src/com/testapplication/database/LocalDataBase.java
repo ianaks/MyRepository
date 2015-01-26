@@ -10,10 +10,6 @@ public class LocalDataBase extends SQLiteOpenHelper {
     public final static String TABLE_NAME = "tracks";
     Context context;
     
-    //SQL entries
-    final static String CREATE_TABLE = "CREATE TABLE" + TABLE_NAME;
-    final static String DROP_TABLE = "DROP TABLE IF EXISTS" + TABLE_NAME;
-	
 	// table fields
 	public static final String TRACKID = "trackid";
 	public static final String TRACKNAME = "trackname";
@@ -22,6 +18,20 @@ public class LocalDataBase extends SQLiteOpenHelper {
 	public static final String ARTWORKURL100 = "artworkUrl100";
 	public static final String ARTWORKURL60 = "artworkUrl60";
 	public static final String RATING = "rating";
+	
+	final static String VARCHAR = "varchar";
+	final static String INT = "int";
+	
+	//SQL entries
+    final static String CREATE_TABLE = "CREATE TABLE" + TABLE_NAME +
+    		"(" + TRACKID + INT + 
+    		TRACKNAME + VARCHAR + "(255)," +
+    		ARTISTNAME + VARCHAR + "(255)," +
+    		TRACKTIMEMILLIS + INT +
+    		ARTWORKURL100 + VARCHAR + "(255)," +
+    		ARTWORKURL60 + VARCHAR + "(255)," +
+    		RATING + INT + ")";
+    final static String DROP_TABLE = "DROP TABLE IF EXISTS" + TABLE_NAME;
 	
 
 	public LocalDataBase(Context context, int dbVersion) {

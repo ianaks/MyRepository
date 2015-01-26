@@ -51,12 +51,12 @@ public class TrackDAO {
 		return listTracks;
     }
     
-    private void updateTracksRating(int trackId, int rating){
+    public void updateTracksRating(int trackId, int rating){
     	String updateQuery = "UPDATE TABLE " + 
     		    LocalDataBase.TABLE_NAME + 
-    		     " (" + LocalDataBase.RATING + ")"
-    		     		+ " VALUES (" + rating + ")" 
-    		     		+ "WHERE" + LocalDataBase.TRACKID + "=" + trackId;
+    		     "SET" + LocalDataBase.RATING + "="
+    		     		 + rating 
+    		     		 + "WHERE" + LocalDataBase.TRACKID + "=" + trackId;
     		    sqLiteDatabase.execSQL(updateQuery);
     }
 

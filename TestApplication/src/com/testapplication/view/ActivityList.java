@@ -1,6 +1,7 @@
 package com.testapplication.view;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -140,5 +141,5 @@ public class ActivityList extends Activity {
 			e.printStackTrace();
 		}
     }
-    
+
 }
