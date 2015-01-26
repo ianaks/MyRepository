@@ -14,9 +14,12 @@ import com.testapplication.R;
 import com.testapplication.database.LocalDataBase;
 import com.testapplication.entity.Track;
 import com.testapplication.service.WebServiceConnection;
+import com.testapplication.utils.TabPagerAdapter;
 import com.testapplication.utils.TrackDAO;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -29,7 +32,7 @@ import android.view.ViewGroup;
 
 
 
-public class ActivityList extends Activity {
+public class ActivityMain extends Activity {
 	
 	// list of local tracks
 	private Track localTracks;
@@ -41,6 +44,11 @@ public class ActivityList extends Activity {
 	
 	// data access object
 	private TrackDAO trackDAO;
+	
+	// instances for tab using
+	private ViewPager Tab;
+    private TabPagerAdapter TabAdapter;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +59,8 @@ public class ActivityList extends Activity {
      	localDataBase = new LocalDataBase(this, 1);
 
      	trackDAO = new TrackDAO(localDataBase.getWritableDatabase());
+     	
+     	
         
     }
 

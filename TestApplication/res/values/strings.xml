@@ -8,5 +8,9 @@
     <string name="save">save</string>
     <string name="search_music">Type to search music</string>
     <string name="empty">No tracks found</string>
+    <string name="track_title">Track title</string>
+    <string name="artist">Artist</string>
+    <string name="duration">Duration</string>
+    <string name="rate_track">Rate track</string>
 
 </resources>

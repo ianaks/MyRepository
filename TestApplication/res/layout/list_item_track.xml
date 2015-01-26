@@ -13,8 +13,8 @@
         android:layout_height="60dp" />
     
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
         android:layout_weight="0.8"
         android:orientation="vertical" >
         
@@ -22,7 +22,7 @@
 		     android:id="@+id/trackTitle"
 		     android:layout_width="wrap_content"
 		     android:layout_height="wrap_content"
-		     android:text="Trackjkjjjjjjjjjj jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj gfdgdfg bfh "
+		     android:text="Track"
 		     android:maxLines="2"
 			 android:ellipsize="end"
 		     android:textSize="15sp"
@@ -32,7 +32,9 @@
          <TextView
 		     android:id="@+id/artist"
 		     android:layout_width="wrap_content"
-		     android:layout_height="wrap_content"
+		     android:layout_height="match_parent"
+		     android:ellipsize="end"
+		     android:gravity="fill"
 		     android:text="Artist"
 		     android:textSize="15sp" />
         
