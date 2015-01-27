@@ -23,14 +23,14 @@ public class LocalDataBase extends SQLiteOpenHelper {
 	final static String INT = "int";
 	
 	//SQL entries
-    final static String CREATE_TABLE = "CREATE TABLE" + TABLE_NAME +
-    		"(" + TRACKID + INT + 
-    		TRACKNAME + VARCHAR + "(255)," +
-    		ARTISTNAME + VARCHAR + "(255)," +
-    		TRACKTIMEMILLIS + INT +
-    		ARTWORKURL100 + VARCHAR + "(255)," +
-    		ARTWORKURL60 + VARCHAR + "(255)," +
-    		RATING + INT + ")";
+    final static String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME +
+    		"(" + TRACKID + " " + INT + 
+    		TRACKNAME + " " + VARCHAR + "(255)," +
+    		ARTISTNAME + " " +VARCHAR + "(255)," +
+    		TRACKTIMEMILLIS + " " + INT +
+    		ARTWORKURL100 + " " + VARCHAR + "(255)," +
+    		ARTWORKURL60 + " " + VARCHAR + "(255)," +
+    		RATING + " " + INT + ")";
     final static String DROP_TABLE = "DROP TABLE IF EXISTS" + TABLE_NAME;
 	
 

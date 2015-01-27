@@ -21,8 +21,8 @@ public class WebServiceConnection extends AsyncTask<String, List<Track>, Object>
 	private ProgressDialog pDlg;
 	private Context context;
 	
-	private static final int CONN_TIMEOUT = 3000;
-    private static final int SOCKET_TIMEOUT = 5000;
+	private static final int CONN_TIMEOUT = 300000;
+    private static final int SOCKET_TIMEOUT = 500000;
     
 	private String url;
 	

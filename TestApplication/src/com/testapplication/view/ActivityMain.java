@@ -18,10 +18,13 @@ import com.testapplication.utils.TabPagerAdapter;
 import com.testapplication.utils.TrackDAO;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,7 +35,10 @@ import android.view.ViewGroup;
 
 
 
-public class ActivityMain extends Activity {
+public class ActivityMain extends FragmentActivity {
+	
+	// both fragments are on the screen
+	private boolean mTwoPane;
 	
 	// list of local tracks
 	private Track localTracks;
@@ -46,30 +52,68 @@ public class ActivityMain extends Activity {
 	private TrackDAO trackDAO;
 	
 	// instances for tab using
-	private ViewPager Tab;
-    private TabPagerAdapter TabAdapter;
+	private ViewPager tab;
+    private TabPagerAdapter tabAdapter;
     private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.fragment);
+         
+//        mTwoPane = true;
+// 
+//        ((CircleListFragment) getSupportFragmentManager().findFragmentById(
+//                R.id.circle_list)).setActivateOnItemClick(true);
+        FragmentListDetail fragment = new FragmentListDetail();
         
+        // In case this activity was started with special instructions from an
+        // Intent, pass the Intent's extras to the fragment as arguments
+        fragment.setArguments(getIntent().getExtras());
+        
+        // Add the fragment to the 'fragment_container' FrameLayout
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_detail, fragment).commit();
         // data base initializing
-     	localDataBase = new LocalDataBase(this, 1);
-
-     	trackDAO = new TrackDAO(localDataBase.getWritableDatabase());
+//     	localDataBase = new LocalDataBase(this, 1);
+//
+//     	trackDAO = new TrackDAO(localDataBase.getWritableDatabase());
+//     	
+//     	 setContentView(R.layout.activity_list);
+//         tabAdapter = new TabPagerAdapter(getSupportFragmentManager());
+//         tab = (ViewPager)findViewById(R.id.pager);
+//         tab.setOnPageChangeListener(
+//                 new ViewPager.SimpleOnPageChangeListener() {
+//                     @Override
+//                     public void onPageSelected(int position) {
+//                       actionBar = getActionBar();
+//                       actionBar.setSelectedNavigationItem(position);                    }
+//                 });
+//         tab.setAdapter(tabAdapter);
+//         actionBar = getActionBar();
+//         //Enable Tabs on Action Bar
+//         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+//         ActionBar.TabListener tabListener = new ActionBar.TabListener(){
+// 	      @Override
+// 	      public void onTabReselected(android.app.ActionBar.Tab tab,
+// 	          FragmentTransaction ft) {
+// 	        // TODO Auto-generated method stub
+// 	      }
+// 	      @Override
+// 	       public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+//// 	              Tab.setCurrentItem(tab.getPosition());
+// 	          }
+// 	      @Override
+// 	      public void onTabUnselected(android.app.ActionBar.Tab tab,
+// 	          FragmentTransaction ft) {
+// 	        // TODO Auto-generated method stub
+// 	      }};
+//       //Add New Tab
+//       actionBar.addTab(actionBar.newTab().setText("Web").setTabListener(tabListener));
+//       actionBar.addTab(actionBar.newTab().setText("Local").setTabListener(tabListener));
      	
      	
         
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.list, menu);
-        return true;
     }
 
     @Override
@@ -82,22 +126,6 @@ public class ActivityMain extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_list, container, false);
-            return rootView;
-        }
     }
     
     private void showAlertDialog(String msg) {
