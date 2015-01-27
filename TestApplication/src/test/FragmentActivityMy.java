@@ -1,16 +1,13 @@
 package test;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
-import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.testapplication.R;
 import com.testapplication.database.LocalDataBase;
@@ -21,10 +18,8 @@ import com.testapplication.utils.TrackDAO;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -32,10 +27,10 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -47,7 +42,7 @@ public class FragmentActivityMy extends FragmentActivity {
 		// list of local tracks
 		private Track localTracks;
 		// list of web tracks
-		private Track webTracks;
+		private List<Track> webTracks;
 		
 		// local data base
 		private LocalDataBase localDataBase;
@@ -62,6 +57,7 @@ public class FragmentActivityMy extends FragmentActivity {
 	    
 	    // widgets
 	    private EditText searchMusic;
+	    private ListView listView;
 	    
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,8 +75,7 @@ public class FragmentActivityMy extends FragmentActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId,
                     KeyEvent event) {
-                if (event != null&& ((event.getKeyCode() == KeyEvent.KEYCODE_ENTER)||
-                		(event.getKeyCode() == KeyEvent.ACTION_DOWN))) {
+                if (event != null&&event.getKeyCode() == KeyEvent.ACTION_DOWN) {
                    searchMusic(v.getText().toString()); 
                    
                    return true;
@@ -91,6 +86,21 @@ public class FragmentActivityMy extends FragmentActivity {
         });
      	
      	setTabs();
+     	
+     	listView = (ListView)findViewById(R.id.lstLocalTracks);
+     	
+     	listView.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				
+			}
+     		
+			});
+     	
+     	
      	
          
     	
@@ -115,9 +125,8 @@ public class FragmentActivityMy extends FragmentActivity {
         ActionBar.TabListener tabListener = new ActionBar.TabListener(){
 
 			@Override
-			public void onTabSelected(Tab tab, FragmentTransaction ft) {
-				// TODO Auto-generated method stub
-				
+			public void onTabSelected(Tab tab2, FragmentTransaction ft) {
+				tab.setCurrentItem(tab2.getPosition());				
 			}
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
@@ -157,28 +166,36 @@ public class FragmentActivityMy extends FragmentActivity {
         		getResources().getString(R.string.web_service_url) +
         		"?term="+term+"&media=music"+"&entity=song", this);
     	Log.d("", getResources().getString(R.string.web_service_url) +
-        		"?term"+term+"&media=music"+"&entity=song");
+        		"?term="+term+"&media=music"+"&entity=song");
         webServiceConnection.execute();
         try {
-			Object result = webServiceConnection.get();
-			if (!(result instanceof String)) {
+			String result = webServiceConnection.get();
+			if (result!=null) {
 				String jsonString;
 				try {
-					jsonString = EntityUtils.toString(((HttpResponse) result).getEntity());
+					
+					jsonString = result;
 				
-					ObjectMapper objectMapper = new ObjectMapper();
-					TypeFactory typeFactory = objectMapper.getTypeFactory();
-					webTracks = objectMapper.readValue(jsonString, typeFactory.constructCollectionType(List.class, Track.class));
-				} catch (JsonParseException e) {
-				   e.printStackTrace();
-				  } catch (JsonMappingException e) {
-				   e.printStackTrace();
-				  } catch (IOException e) {
-				   e.printStackTrace();
-				  }catch (ParseException e1) {
+					JSONObject jsonObject = new JSONObject(jsonString);
+					JSONArray jsonArray = jsonObject.getJSONArray("results");
+					webTracks = new ArrayList<Track>();
+					for(int i=0; i<jsonArray.length();i++){
+						Track track= new Track();
+						track.setArtistName(jsonArray.getJSONObject(i).getString("artistName"));
+						track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
+						track.setArtworkUrl60(jsonArray.getJSONObject(i).getString("artworkUrl60"));
+						track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
+						track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
+						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
+						webTracks.add(track);
+					}
+				} catch (ParseException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-				  } 
+				  } catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 				
 			} else {
 				showAlertDialog("Server is temporarily unavailable");
