@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -158,10 +161,11 @@ public class FragmentActivityMy extends FragmentActivity {
         webServiceConnection.execute();
         try {
 			Object result = webServiceConnection.get();
-			if (!(result instanceof Exception)) {
-				String jsonString = (String) result;
-			
-				try{
+			if (!(result instanceof String)) {
+				String jsonString;
+				try {
+					jsonString = EntityUtils.toString(((HttpResponse) result).getEntity());
+				
 					ObjectMapper objectMapper = new ObjectMapper();
 					TypeFactory typeFactory = objectMapper.getTypeFactory();
 					webTracks = objectMapper.readValue(jsonString, typeFactory.constructCollectionType(List.class, Track.class));
@@ -171,7 +175,10 @@ public class FragmentActivityMy extends FragmentActivity {
 				   e.printStackTrace();
 				  } catch (IOException e) {
 				   e.printStackTrace();
-				  }
+				  }catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+				  } 
 				
 			} else {
 				showAlertDialog("Server is temporarily unavailable");
