@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -15,14 +16,22 @@ import com.testapplication.entity.Track;
 import com.testapplication.service.WebServiceConnection;
 import com.testapplication.utils.TabPagerAdapter;
 import com.testapplication.utils.TrackDAO;
+import com.testapplication.utils.TracksListAdapter;
+import com.testapplication.view.FragmentLocalTab;
+import com.testapplication.view.FragmentWebTab;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -40,7 +49,7 @@ public class FragmentActivityMy extends FragmentActivity {
 		private boolean mTwoPane;
 		
 		// list of local tracks
-		private Track localTracks;
+		private List<Track> localTracks;
 		// list of web tracks
 		private List<Track> webTracks;
 		
@@ -55,9 +64,16 @@ public class FragmentActivityMy extends FragmentActivity {
 	    private TabPagerAdapter tabAdapter;
 	    private ActionBar actionBar;
 	    
+	    private FragmentLocalTab fragmentLocalTab;
+	    private FragmentWebTab fragmentWebTab;
+	    
 	    // widgets
 	    private EditText searchMusic;
-	    private ListView listView;
+	    private ListView lstWeb;
+	    private ListView lstLocal;
+	    private TextView emptyWeb;
+	    private TextView emptyLocal;
+	    
 	    
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,13 +86,26 @@ public class FragmentActivityMy extends FragmentActivity {
      	
      	searchMusic = (EditText)findViewById(R.id.searchEdit);
      	
+     	localTracks = trackDAO.getAllTracksFromLocalDB();
+     	
+     	fragmentWebTab = new FragmentWebTab();
+     	fragmentLocalTab = new FragmentLocalTab();
+     	
+     	setTabs();
+     	
     	searchMusic.setOnEditorActionListener(new OnEditorActionListener() {
 
             @Override
             public boolean onEditorAction(TextView v, int actionId,
                     KeyEvent event) {
-                if (event != null&&event.getKeyCode() == KeyEvent.ACTION_DOWN) {
-                   searchMusic(v.getText().toString()); 
+                if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                	if(tab.getCurrentItem()==0){
+                		searchMusic(v.getText().toString()); 
+                		fragmentWebTab.setList(webTracks, "web");
+                	} else{
+                		localTracks = trackDAO.getAllTracksFromLocalDB();
+                		fragmentLocalTab.setList(localTracks, "local");
+                	}
                    
                    return true;
 
@@ -85,25 +114,6 @@ public class FragmentActivityMy extends FragmentActivity {
             }
         });
      	
-     	setTabs();
-     	
-     	listView = (ListView)findViewById(R.id.lstLocalTracks);
-     	
-     	listView.setOnItemClickListener(new OnItemClickListener(){
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				// TODO Auto-generated method stub
-				
-			}
-     		
-			});
-     	
-     	
-     	
-         
-    	
     }
     
     private void setTabs(){
@@ -126,7 +136,23 @@ public class FragmentActivityMy extends FragmentActivity {
 
 			@Override
 			public void onTabSelected(Tab tab2, FragmentTransaction ft) {
-				tab.setCurrentItem(tab2.getPosition());				
+
+				    switch (tab2.getPosition() + 1)
+				    {
+				    case 1:
+				    	getSupportFragmentManager().beginTransaction()
+			            .replace(R.id.pager, fragmentWebTab)
+			            .commit();
+				        break;
+
+				    case 2:
+				    	getSupportFragmentManager().beginTransaction()
+			            .replace(R.id.pager, fragmentLocalTab)
+			            .commit();      
+				        break;
+				    }
+				    
+				     
 			}
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
@@ -189,6 +215,7 @@ public class FragmentActivityMy extends FragmentActivity {
 						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
 						webTracks.add(track);
 					}
+					
 				} catch (ParseException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -208,4 +235,32 @@ public class FragmentActivityMy extends FragmentActivity {
 			e.printStackTrace();
 		}
     }
+    
+    public class TabPagerAdapter extends FragmentStatePagerAdapter {
+    	
+        public TabPagerAdapter(FragmentManager fm) {
+    	    super(fm);
+    	    // TODO Auto-generated constructor stub
+    	  }
+    	    
+    	  @Override
+    	  public Fragment getItem(int i) {
+    	    switch (i) {
+    	        case 0:
+    	            //Fragement for Web Tab
+    	            return new FragmentWebTab();
+    	        case 1:
+    	           //Fragment for Local Tab
+    	            return new FragmentLocalTab();
+    	        }
+    	    return null;
+    	  }
+    	  @Override
+    	  public int getCount() {
+    	    // TODO Auto-generated method stub
+    	    return 2; //No of Tabs
+    	  }
+        }
+	
+	
 }

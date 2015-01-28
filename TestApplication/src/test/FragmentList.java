@@ -19,4 +19,6 @@ public class FragmentList extends Fragment {
 	  	  View view = inflater.inflate(R.layout.fragment_list, container, false);
 	  	  return view;
 	    }   
+	 
+	 
 }

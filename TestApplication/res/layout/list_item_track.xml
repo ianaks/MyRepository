@@ -7,7 +7,7 @@
     android:orientation="horizontal" >
 	
 	<ImageView
-        android:id="@+id/list_image"
+        android:id="@+id/track_icon"
         android:contentDescription="@string/app_name"
         android:layout_width="60dp"
         android:layout_height="60dp" />
