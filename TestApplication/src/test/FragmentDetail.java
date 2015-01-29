@@ -24,7 +24,7 @@ public class FragmentDetail extends Fragment {
   	  return view;
     }
    
-    public void fillDetail(Track track){
+    public void fillDetail(Track track, String type){
     	if(track!=null){
     		ImageView imageView = (ImageView)getView().findViewById(R.id.image_detail);
     		if(track.getArtworkUrl100()!=null){
