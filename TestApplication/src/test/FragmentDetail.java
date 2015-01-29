@@ -26,20 +26,23 @@ public class FragmentDetail extends Fragment {
    
     public void fillDetail(Track track){
     	if(track!=null){
-    		if(track.getArtworkUrl100()!=null && track.getArtworkUrl60().indexOf(".jpg")!=-1){
-		    	ImageView imageView = (ImageView)getView().findViewById(R.id.image_detail);
-		    	DownloadImageTask downloadImageTask = new DownloadImageTask();
-				downloadImageTask.execute(track.getArtworkUrl100());
-				try {
-					imageView.setImageBitmap(downloadImageTask.get());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+    		ImageView imageView = (ImageView)getView().findViewById(R.id.image_detail);
+    		if(track.getArtworkUrl100()!=null){
+    			try {
+					DownloadImageTask downloadImageTask = new DownloadImageTask();
+					downloadImageTask.execute(track.getArtworkUrl100());
+					
+					imageView.setImageBitmap(downloadImageTask.get().get(0));	
+					
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
     		}
+    		
 			
 			TextView trackName = (TextView)getView().findViewById(R.id.trackTitleDetail);
 			TextView artistTitle = (TextView)getView().findViewById(R.id.artistTitleDetail);
@@ -55,9 +58,9 @@ public class FragmentDetail extends Fragment {
 			long seconds = TimeUnit.MILLISECONDS.toSeconds(track.getTrackTimeMillis());
 			
 			if(hours!=0){
-				duration.setText("" + hours + ":" + minutes + ":" + seconds);
+				duration.setText("" + hours + ":" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
 			} else 
-				duration.setText("" + minutes + ":" + seconds);
+				duration.setText("" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
 			
     	}
     }

@@ -12,5 +12,7 @@
     <string name="artist">Artist</string>
     <string name="duration">Duration</string>
     <string name="rate_track">Rate track</string>
+    <string name="web">Web</string>
+    <string name="local">Local</string>
 
 </resources>

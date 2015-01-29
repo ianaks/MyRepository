@@ -34,9 +34,7 @@ public class FragmentDetailActivity extends Activity {
 	    public void onConfigurationChanged(Configuration newConfig) {
 	        super.onConfigurationChanged(newConfig);
 	        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-	            Intent intent = new Intent(this, FragmentActivityMy.class);
-	            intent.putExtra("selectedValue", currentLink);
-	            startActivity(intent);
+	        	
 	        } 
 	    }
 }

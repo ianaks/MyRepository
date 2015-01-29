@@ -14,6 +14,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import test.FragmentActivityMy;
+
 import com.testapplication.entity.Track;
 
 import android.app.ProgressDialog;
@@ -73,6 +75,9 @@ public class WebServiceConnection extends AsyncTask<String, List<Track>, String>
 	@Override
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
+		
+		if(result!=null && result instanceof String)
+		FragmentActivityMy.setWebList(result);
 		
 		pDlg.dismiss();
 		

@@ -1,5 +1,6 @@
 package com.testapplication.entity;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,7 +11,7 @@ public class Track implements android.os.Parcelable {
 	private String trackName;
 	private int trackTimeMillis;
 	private String artworkUrl100;
-	private String artworkUrl60;
+	private Bitmap artworkUrl60;
 	private int rating;
 	
 	public Track() {
@@ -66,11 +67,11 @@ public class Track implements android.os.Parcelable {
 		this.artworkUrl100 = artworkUrl100;
 	}
 
-	public String getArtworkUrl60() {
+	public Bitmap getArtworkUrl60() {
 		return artworkUrl60;
 	}
 
-	public void setArtworkUrl60(String artworkUrl60) {
+	public void setArtworkUrl60(Bitmap artworkUrl60) {
 		this.artworkUrl60 = artworkUrl60;
 	}
 
@@ -99,8 +100,6 @@ public class Track implements android.os.Parcelable {
 	
 	 private Track(Parcel in) {
          artistName = in.readString();
-         artworkUrl100 = in.readString();
-         artworkUrl60 = in.readString();
          rating = in.readInt();
          trackId = in.readInt();
          trackName = in.readString();

@@ -39,8 +39,8 @@ public class TrackDAO {
 		while (cursor.moveToNext()) {
 			Track track = new Track();
 			track.setArtistName(cursor.getString(cursor.getColumnIndex(LocalDataBase.ARTISTNAME)));
-			track.setArtworkUrl100(cursor.getString(cursor.getColumnIndex(LocalDataBase.ARTWORKURL100)));
-			track.setArtworkUrl60(cursor.getString(cursor.getColumnIndex(LocalDataBase.ARTWORKURL60)));
+//			track.setArtworkUrl100(cursor.getString(cursor.getColumnIndex(LocalDataBase.ARTWORKURL100)));
+//			track.setArtworkUrl60(cursor.getString(cursor.getColumnIndex(LocalDataBase.ARTWORKURL60)));
 			track.setRating(cursor.getInt(cursor.getColumnIndex(LocalDataBase.RATING)));
 			track.setTrackId(cursor.getInt(cursor.getColumnIndex(LocalDataBase.TRACKID)));
 			track.setTrackName(cursor.getString(cursor.getColumnIndex(LocalDataBase.TRACKNAME)));

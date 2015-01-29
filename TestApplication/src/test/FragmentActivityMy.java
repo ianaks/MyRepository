@@ -1,7 +1,6 @@
 package test;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -14,30 +13,24 @@ import com.testapplication.R;
 import com.testapplication.database.LocalDataBase;
 import com.testapplication.entity.Track;
 import com.testapplication.service.WebServiceConnection;
-import com.testapplication.utils.TabPagerAdapter;
+import com.testapplication.utils.DownloadImageTask;
 import com.testapplication.utils.TrackDAO;
-import com.testapplication.utils.TracksListAdapter;
-import com.testapplication.view.FragmentLocalTab;
-import com.testapplication.view.FragmentWebTab;
-
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
+import com.testapplication.utils.TracksLocalListAdapter;
+import com.testapplication.utils.TracksWebListAdapter;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.ListFragment;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -59,20 +52,18 @@ public class FragmentActivityMy extends FragmentActivity {
 		// data access object
 		private TrackDAO trackDAO;
 		
-		// instances for tab using
-		private ViewPager tab;
-	    private TabPagerAdapter tabAdapter;
-	    private ActionBar actionBar;
-	    
-	    private FragmentLocalTab fragmentLocalTab;
-	    private FragmentWebTab fragmentWebTab;
-	    
 	    // widgets
 	    private EditText searchMusic;
-	    private ListView lstWeb;
-	    private ListView lstLocal;
-	    private TextView emptyWeb;
-	    private TextView emptyLocal;
+	    private Button buttonWeb;
+	    private Button buttonLocal;
+	    private ListView lstWebTracks;
+	    private ListView lstLocalTracks;
+	    private TextView empty;
+	    
+	    private boolean webPressed = true;
+	    
+	    // Result of WebServiceConnection
+	    private static String result;
 	    
 	    
     @Override
@@ -88,86 +79,75 @@ public class FragmentActivityMy extends FragmentActivity {
      	
      	localTracks = trackDAO.getAllTracksFromLocalDB();
      	
-     	fragmentWebTab = new FragmentWebTab();
-     	fragmentLocalTab = new FragmentLocalTab();
+     	lstWebTracks = (ListView)findViewById(R.id.lstWebTracks);
      	
-     	setTabs();
+     	lstLocalTracks = (ListView)findViewById(R.id.lstLocalTracks);
      	
-    	searchMusic.setOnEditorActionListener(new OnEditorActionListener() {
-
-            @Override
-            public boolean onEditorAction(TextView v, int actionId,
-                    KeyEvent event) {
-                if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                	if(tab.getCurrentItem()==0){
+     	buttonWeb = (Button)findViewById(R.id.buttonWeb);
+     	
+     	buttonLocal = (Button)findViewById(R.id.buttonLocal);
+     	
+     	empty = (TextView)findViewById(R.id.empty);
+     	
+//     	fragmentWebTab = new FragmentWebTab();
+//     	fragmentLocalTab = new FragmentLocalTab();
+     	
+     	buttonWeb.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				buttonWeb.setBackgroundResource(R.drawable.gradient_bg_hover);
+				buttonLocal.setBackgroundResource(R.drawable.gradient_bg);
+				webPressed = true;
+				if(webTracks!=null && webTracks.size()>0){
+					lstWebTracks.setVisibility(View.VISIBLE);
+					lstLocalTracks.setVisibility(View.GONE);
+				} else{ 
+					empty.setVisibility(View.VISIBLE);
+				lstWebTracks.setVisibility(View.GONE);
+				lstLocalTracks.setVisibility(View.GONE);
+				}
+			}
+		});
+     	
+     	buttonLocal.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				buttonWeb.setBackgroundResource(R.drawable.gradient_bg);
+				buttonLocal.setBackgroundResource(R.drawable.gradient_bg_hover);
+				buttonLocal.setActivated(true);
+				buttonWeb.setActivated(false);
+				webPressed = false;
+				if(localTracks!=null && localTracks.size()>0){
+					lstWebTracks.setVisibility(View.GONE);
+					lstLocalTracks.setVisibility(View.VISIBLE);
+				} else{ 
+					empty.setVisibility(View.VISIBLE);
+					lstWebTracks.setVisibility(View.GONE);
+					lstLocalTracks.setVisibility(View.GONE);
+				}
+			}
+		});
+     	  	
+     	searchMusic.setOnEditorActionListener(new OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                	if(webPressed==true){
                 		searchMusic(v.getText().toString()); 
-                		fragmentWebTab.setList(webTracks, "web");
+                		setList(webTracks, "web");
                 	} else{
                 		localTracks = trackDAO.getAllTracksFromLocalDB();
-                		fragmentLocalTab.setList(localTracks, "local");
+                		setList(localTracks, "local");
                 	}
-                   
-                   return true;
-
-                }
+                	searchMusic.requestFocus();
+                }    
                 return false;
             }
         });
+
+   }
      	
-    }
-    
-    private void setTabs(){
-    	tabAdapter = new TabPagerAdapter(getSupportFragmentManager());
-        tab = (ViewPager)findViewById(R.id.pager);
-        tab.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                      actionBar = getActionBar();
-                      actionBar.setSelectedNavigationItem(position);                    }
-                });
-        tab.setAdapter(tabAdapter);
-        actionBar = getActionBar();
-        //Enable Tabs on Action Bar
-        actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        ActionBar.TabListener tabListener = new ActionBar.TabListener(){
-
-			@Override
-			public void onTabSelected(Tab tab2, FragmentTransaction ft) {
-
-				    switch (tab2.getPosition() + 1)
-				    {
-				    case 1:
-				    	getSupportFragmentManager().beginTransaction()
-			            .replace(R.id.pager, fragmentWebTab)
-			            .commit();
-				        break;
-
-				    case 2:
-				    	getSupportFragmentManager().beginTransaction()
-			            .replace(R.id.pager, fragmentLocalTab)
-			            .commit();      
-				        break;
-				    }
-				    
-				     
-			}
-			@Override
-			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-				// TODO Auto-generated method stub
-				
-			}
-			@Override
-			public void onTabReselected(Tab tab, FragmentTransaction ft) {
-				// TODO Auto-generated method stub
-			
-		}};
-      //Add New Tab
-      actionBar.addTab(actionBar.newTab().setText("Web").setTabListener(tabListener));
-      actionBar.addTab(actionBar.newTab().setText("Local").setTabListener(tabListener));
-    }
     
     private void showAlertDialog(String msg) {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
@@ -190,77 +170,104 @@ public class FragmentActivityMy extends FragmentActivity {
     private void searchMusic(String term){
     	WebServiceConnection webServiceConnection = new WebServiceConnection(
         		getResources().getString(R.string.web_service_url) +
-        		"?term="+term+"&media=music"+"&entity=song", this);
+        		"?term="+term+"&media=music&entity=song", this);
     	Log.d("", getResources().getString(R.string.web_service_url) +
         		"?term="+term+"&media=music"+"&entity=song");
         webServiceConnection.execute();
-        try {
-			String result = webServiceConnection.get();
-			if (result!=null) {
-				String jsonString;
-				try {
-					
-					jsonString = result;
+        if (result!=null) {
+			String jsonString;
+			try {
 				
-					JSONObject jsonObject = new JSONObject(jsonString);
-					JSONArray jsonArray = jsonObject.getJSONArray("results");
-					webTracks = new ArrayList<Track>();
-					for(int i=0; i<jsonArray.length();i++){
-						Track track= new Track();
-						track.setArtistName(jsonArray.getJSONObject(i).getString("artistName"));
-						track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
-						track.setArtworkUrl60(jsonArray.getJSONObject(i).getString("artworkUrl60"));
-						track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
-						track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
-						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
-						webTracks.add(track);
-					}
+				jsonString = result;
+			
+				JSONObject jsonObject = new JSONObject(jsonString);
+				JSONArray jsonArray = jsonObject.getJSONArray("results");
+				webTracks = new ArrayList<Track>();
+				for(int i=0; i<jsonArray.length();i++){
+					Track track= new Track();
+					track.setArtistName(jsonArray.getJSONObject(i).getString("artistName"));
+					try {
+						DownloadImageTask downloadImageTask = new DownloadImageTask();
+						downloadImageTask.execute(jsonArray.getJSONObject(i).getString("artworkUrl60"));
+						
+						track.setArtworkUrl60(downloadImageTask.get().get(0));	
+						
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					
-				} catch (ParseException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-				  } catch (JSONException e) {
+					track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
+					track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
+					track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
+					track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
+					webTracks.add(track);
+				}
+				
+			} catch (ParseException e1) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-				
-			} else {
-				showAlertDialog("Server is temporarily unavailable");
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+					e1.printStackTrace();
+			  } catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			
+		} else {
+			showAlertDialog("Server is temporarily unavailable");
 		}
     }
     
-    public class TabPagerAdapter extends FragmentStatePagerAdapter {
-    	
-        public TabPagerAdapter(FragmentManager fm) {
-    	    super(fm);
-    	    // TODO Auto-generated constructor stub
-    	  }
-    	    
-    	  @Override
-    	  public Fragment getItem(int i) {
-    	    switch (i) {
-    	        case 0:
-    	            //Fragement for Web Tab
-    	            return new FragmentWebTab();
-    	        case 1:
-    	           //Fragment for Local Tab
-    	            return new FragmentLocalTab();
-    	        }
-    	    return null;
-    	  }
-    	  @Override
-    	  public int getCount() {
-    	    // TODO Auto-generated method stub
-    	    return 2; //No of Tabs
-    	  }
-        }
-	
+    public void setList(List<Track> tracks, final String type) {
+		final List<Track> listTracks = tracks;	
+		
+		ListView lstTracks;
+		if(type.equals("web"))
+			lstTracks = lstWebTracks;
+		else 
+			lstTracks = lstLocalTracks;
+		if(listTracks.size() > 0){
+
+			lstTracks.setOnItemClickListener(new OnItemClickListener() {			
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View view,
+						int position, long id) {
+					FragmentDetail fragment = (FragmentDetail)getFragmentManager().findFragmentById(R.id.fragment_detail);
+			     	 if (fragment != null) {
+			     			fragment.fillDetail(listTracks.get(position));
+			     	 } else {
+			     		Intent intentDettaglio = new Intent(view.getContext(), FragmentDetailActivity.class);
+			     		if(type.equals("web"))
+			     			intentDettaglio.putExtra("type", "web");
+			     		else 
+			     			intentDettaglio.putExtra("type", "local");
+						intentDettaglio.putExtra("track", listTracks.get(position));
+						
+						startActivity(intentDettaglio);
+			          }
+				}
+			});
+			if(type.equals("web")){
+				TracksWebListAdapter adapter = new TracksWebListAdapter(this,  R.layout.list_item_web_track, tracks);
+				lstTracks.setAdapter(adapter);
+			} else{
+				TracksLocalListAdapter adapter = new TracksLocalListAdapter(this,  R.layout.list_item_local_track, tracks);
+				lstTracks.setAdapter(adapter);
+			}
+			empty.setVisibility(View.GONE);
+			lstTracks.setVisibility(View.VISIBLE);
+		} else {
+			empty.setVisibility(View.VISIBLE);
+			tracks.clear();
+			lstTracks.setVisibility(View.GONE);
+		}
+ 	   
+ 	}
+    
+    public static void setWebList(String newResult){
+    	result = newResult;
+    }
 	
 }
