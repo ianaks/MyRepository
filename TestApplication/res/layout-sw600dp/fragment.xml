@@ -17,5 +17,13 @@
     	android:layout_width="match_parent"
     	android:layout_height="match_parent" >
     </fragment>
+    
+     <fragment class="test.FragmentRating"
+    	android:id="@+id/fragment_rating"
+    	android:layout_weight="1"
+    	android:visibility="gone"
+    	android:layout_width="match_parent"
+    	android:layout_height="match_parent" >
+    </fragment>
 
 </LinearLayout>

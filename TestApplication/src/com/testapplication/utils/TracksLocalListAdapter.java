@@ -25,13 +25,17 @@ public class TracksLocalListAdapter extends ArrayAdapter<Track> {
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		ViewHolder viewHolder = null;
+		View view = null;
+		
+		ViewHolder holder = null;
+		
+		Track track = getItem(position);
 		
 		if (convertView == null) {
 			LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			convertView = vi.inflate(textViewResourceId, null);
 			
-			final ViewHolder holder = new ViewHolder();
+			holder = new ViewHolder();
 			
 			holder.track = (TextView) convertView.findViewById(R.id.localTrackTitle);
 			holder.duration = (TextView) convertView.findViewById(R.id.localDuration);
@@ -41,10 +45,8 @@ public class TracksLocalListAdapter extends ArrayAdapter<Track> {
 			convertView.setTag(holder);
 			
 		} else {
-			viewHolder = (ViewHolder) convertView.getTag();
+			holder = (ViewHolder)view.getTag();
 		}
-		
-		Track track = getItem(position);
 		
 		if(track!=null){
 			long hours = TimeUnit.MILLISECONDS.toHours(track.getTrackTimeMillis());
@@ -52,19 +54,19 @@ public class TracksLocalListAdapter extends ArrayAdapter<Track> {
 			long seconds = TimeUnit.MILLISECONDS.toSeconds(track.getTrackTimeMillis());
 			
 			if(hours!=0){
-				viewHolder.duration.setText("" + hours + ":" + minutes + ":" + Long.toString(seconds).substring(0, 2));
+				holder.duration.setText("" + hours + ":" + minutes + ":" + Long.toString(seconds).substring(0, 2));
 			} else 
-				viewHolder.duration.setText("" + minutes + ":" + Long.toString(seconds).substring(0, 2));
+				holder.duration.setText("" + minutes + ":" + Long.toString(seconds).substring(0, 2));
 			
 			
 			if(track.getTrackName()!=null)
-				viewHolder.track.setText(track.getTrackName());
+				holder.track.setText(track.getTrackName());
 			if(track.getArtistName()!=null)
-				viewHolder.artist.setText(track.getArtistName());
+				holder.artist.setText(track.getArtistName());
 			if(track.getArtworkUrl60()!=null){
-				viewHolder.icon.setImageBitmap(track.getArtworkUrl60());				
+				holder.icon.setImageBitmap(track.getArtworkUrl60());				
 			}
-			viewHolder.rating.setVisibility(View.VISIBLE);
+			holder.rating.setVisibility(View.VISIBLE);
 		}
 		return convertView;
 	}

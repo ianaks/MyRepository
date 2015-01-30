@@ -43,8 +43,10 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -55,10 +57,13 @@ public class FragmentActivityMy extends FragmentActivity {
 	// both fragments are on the screen
 		private boolean mTwoPane;
 		
-		// list of local tracks
+		private ProgressDialog pDlg;
+		
+		// search list of local tracks
 		private List<Track> localTracks;
-		// list of web tracks
+		// search list of web tracks
 		private List<Track> webTracks;
+		//all id of tracks in local db
 		
 		// local data base
 		private static LocalDataBase localDataBase;
@@ -76,6 +81,8 @@ public class FragmentActivityMy extends FragmentActivity {
 	    private Button buttonRate;
 	    private Button buttonSave;
 	    private RatingBar ratingBar;
+	    private LinearLayout layoutDetail;
+	    private ListView lstTracks;
 	    
 	    private boolean webPressed = true;
 	    
@@ -83,7 +90,12 @@ public class FragmentActivityMy extends FragmentActivity {
 	    FragmentDetail fragmentDetail;
 	    FragmentRating fragmentRating;
 	    
+	    TracksWebListAdapter webAdapter;
+	    TracksLocalListAdapter localAdapter;
+	    
 	    Context context;
+	    
+	    Track selectedTrack;
 	    
 	    
     @Override
@@ -91,16 +103,17 @@ public class FragmentActivityMy extends FragmentActivity {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.fragment);
     	
+    	getActionBar().hide();
+    	
     	context = this;
     	
     	fragmentDetail = (FragmentDetail)getFragmentManager().findFragmentById(R.id.fragment_detail);
     	fragmentRating = (FragmentRating)getFragmentManager().findFragmentById(R.id.fragment_rating);
     	
-    	localDataBase = new LocalDataBase(this, 1);
+    	localDataBase = new LocalDataBase(this, 2);
      	trackDAO = new TrackDAO(localDataBase.getWritableDatabase());
      	
-     	searchMusic = (EditText)findViewById(R.id.searchEdit);     	
-     	localTracks = trackDAO.getAllTracksFromLocalDB();     	
+     	searchMusic = (EditText)findViewById(R.id.searchEdit);    	
      	lstWebTracks = (ListView)findViewById(R.id.lstWebTracks);     	
      	lstLocalTracks = (ListView)findViewById(R.id.lstLocalTracks);     	
      	buttonWeb = (Button)findViewById(R.id.buttonWeb);     	
@@ -109,6 +122,11 @@ public class FragmentActivityMy extends FragmentActivity {
      	buttonRate = (Button)findViewById(R.id.ratingButton);    
      	buttonSave = (Button)findViewById(R.id.saveButton); 
      	ratingBar = (RatingBar)findViewById(R.id.ratingBar);
+     	layoutDetail = (LinearLayout)findViewById(R.id.layoutDetail);
+     	
+     	findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
+     	findViewById(R.id.fragment_rating).setVisibility(View.GONE);
+     	
      	
      	if(buttonRate!=null){
      		buttonRate.setVisibility(View.GONE);
@@ -117,9 +135,22 @@ public class FragmentActivityMy extends FragmentActivity {
 				@Override
 				public void onClick(View v) {
 					if(fragmentRating!=null){
+						ratingBar.setRating(selectedTrack.getRating());
 						findViewById(R.id.fragment_rating).setVisibility(View.VISIBLE);
 						findViewById(R.id.fragment_detail).setVisibility(View.GONE);
 					}
+				}
+			});
+     	}
+     	
+     	if(buttonSave!=null){
+     		buttonSave.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					trackDAO.updateTracksRating(selectedTrack.getTrackId(), selectedTrack.getRating());
+					findViewById(R.id.fragment_rating).setVisibility(View.GONE);
+					findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
 				}
 			});
      	}
@@ -128,6 +159,8 @@ public class FragmentActivityMy extends FragmentActivity {
 			
 			@Override
 			public void onClick(View v) {
+				if(layoutDetail!=null)
+					layoutDetail.setVisibility(View.GONE);
 				buttonWeb.setBackgroundResource(R.drawable.gradient_bg_hover);
 				buttonLocal.setBackgroundResource(R.drawable.gradient_bg);
 				webPressed = true;
@@ -148,6 +181,8 @@ public class FragmentActivityMy extends FragmentActivity {
 			
 			@Override
 			public void onClick(View v) {
+				if(layoutDetail!=null)
+					layoutDetail.setVisibility(View.GONE);
 				buttonWeb.setBackgroundResource(R.drawable.gradient_bg);
 				buttonLocal.setBackgroundResource(R.drawable.gradient_bg_hover);
 				buttonLocal.setActivated(true);
@@ -160,6 +195,7 @@ public class FragmentActivityMy extends FragmentActivity {
 					empty.setVisibility(View.VISIBLE);
 					lstWebTracks.setVisibility(View.GONE);
 					lstLocalTracks.setVisibility(View.GONE);
+					
 				}
 				if(buttonRate!=null)
 					buttonRate.setVisibility(View.VISIBLE);
@@ -172,7 +208,7 @@ public class FragmentActivityMy extends FragmentActivity {
                 	if(webPressed==true){
                 		searchMusic(v.getText().toString()); 
                 	} else{
-                		localTracks = trackDAO.getAllTracksFromLocalDB();
+                		localTracks = trackDAO.getTrackByName(v.getText().toString());
                 		setList(localTracks, "local");
                 	}
                 	searchMusic.requestFocus();
@@ -182,25 +218,6 @@ public class FragmentActivityMy extends FragmentActivity {
         });
 
    }
-     	
-    
-    private void showAlertDialog(String msg) {
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-				this);
-		alertDialogBuilder.setTitle("Connection error");
-		alertDialogBuilder
-			.setMessage(msg)
-			.setCancelable(false)
-			.setPositiveButton("OK",new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog,int id) {
-					dialog.cancel();
-				}
-			  });
-
-			AlertDialog alertDialog = alertDialogBuilder.create();
-
-			alertDialog.show();
-		}
     
     private void searchMusic(String term){
     	WebServiceConnection webServiceConnection = new WebServiceConnection(
@@ -215,7 +232,6 @@ public class FragmentActivityMy extends FragmentActivity {
     public void setList(List<Track> tracks, final String type) {
 		final List<Track> listTracks = tracks;	
 		
-		ListView lstTracks;
 		if(type.equals("web"))
 			lstTracks = lstWebTracks;
 		else 
@@ -226,9 +242,12 @@ public class FragmentActivityMy extends FragmentActivity {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View view,
 						int position, long id) {
+					selectedTrack = listTracks.get(position);
 					
 			     	 if (fragmentDetail != null) {
 			     			fragmentDetail.fillDetail(listTracks.get(position), type);
+			     			if(layoutDetail!=null)
+								layoutDetail.setVisibility(View.VISIBLE);
 			     	 } else{
 			     		 Intent intent = new Intent(context, FragmentDetailActivity.class);
 			     		 intent.putExtra("track", listTracks.get(position));
@@ -237,12 +256,21 @@ public class FragmentActivityMy extends FragmentActivity {
 			     	 }
 				}
 			});
+			lstTracks.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+				@Override
+				public boolean onItemLongClick(AdapterView<?> parent,
+						View view, int position, long id) {
+					showOnItemClickDialog(type, position, listTracks.get(position));
+					return false;
+				}
+			});
 			if(type.equals("web")){
-				TracksWebListAdapter adapter = new TracksWebListAdapter(this,  R.layout.list_item_web_track, tracks);
-				lstTracks.setAdapter(adapter);
+				webAdapter = new TracksWebListAdapter(this,  R.layout.list_item_web_track, tracks);
+				lstTracks.setAdapter(webAdapter);
 			} else{
-				TracksLocalListAdapter adapter = new TracksLocalListAdapter(this,  R.layout.list_item_local_track, tracks);
-				lstTracks.setAdapter(adapter);
+				localAdapter = new TracksLocalListAdapter(this,  R.layout.list_item_local_track, tracks);
+				lstTracks.setAdapter(localAdapter);
 			}
 			empty.setVisibility(View.GONE);
 			lstTracks.setVisibility(View.VISIBLE);
@@ -256,8 +284,6 @@ public class FragmentActivityMy extends FragmentActivity {
 
     class WebServiceConnection extends AsyncTask<String, List<Track>, String>{
 
-    	private ProgressDialog pDlg;
-    	
     	private static final int CONN_TIMEOUT = 300000;
         private static final int SOCKET_TIMEOUT = 500000;
         
@@ -332,6 +358,7 @@ public class FragmentActivityMy extends FragmentActivity {
     							}
     						
     						track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
+    						track.setArtworkUrl60String(jsonArray.getJSONObject(i).getString("artworkUrl60"));
     						track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
     						track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
     						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
@@ -347,7 +374,7 @@ public class FragmentActivityMy extends FragmentActivity {
     				setList(webTracks, "web");
     				
     			} else {
-    				showAlertDialog("Server is temporarily unavailable");
+    				showAlertDialog("Server is temporarily unavailable", "Connection error");
     			}
     		
     		pDlg.dismiss();
@@ -365,20 +392,84 @@ public class FragmentActivityMy extends FragmentActivity {
             return htpp;
         }
 
-    	private void showProgressDialog() {
-            
-    		pDlg = new ProgressDialog(context);
-            pDlg.setMessage("Wait...");
-            pDlg.setCancelable(false);
-            pDlg.show();
-
-        }
-    	
     }
 
 
 	public static LocalDataBase getLocalDataBase() {
 		return localDataBase;
 	}   
+	
+	 private void showAlertDialog(String msg, String title) {
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+					this);
+			alertDialogBuilder.setTitle(title);
+			alertDialogBuilder
+				.setMessage(msg)
+				.setCancelable(false)
+				.setPositiveButton("OK",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					}
+				  });
+
+				AlertDialog alertDialog = alertDialogBuilder.create();
+
+				alertDialog.show();
+			}
+	 
+	 private void showOnItemClickDialog(final String type, final int position, final Track track) {
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+					this);
+			alertDialogBuilder
+				.setMessage((type.equals("web")?"Do you like to save the track info on device?":
+					"Do you like to remove the track info from device?"))
+				.setCancelable(true)
+				.setPositiveButton("OK",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						if(type.equals("web")){
+							String result = trackDAO.insertTrackInLocalDB(track.getTrackId(), track.getArtistName(),
+									track.getTrackName(), track.getTrackTimeMillis(), 
+									track.getArtworkUrl60String(), track.getArtworkUrl100());
+							if(result.equals("EXISTS")){
+								dialog.cancel();
+								showAlertDialog("The track already exists on device", "Error");
+							} 
+							else if(result.equals("OK")){
+								webTracks.remove(position);
+								webAdapter.notifyDataSetChanged();
+								dialog.cancel();
+								showAlertDialog("The track is saved", "");
+							} else {
+								dialog.cancel();
+								Log.v("db", result);
+								showAlertDialog("There are some problems with saving", "");
+							}
+						} else{
+							if(trackDAO.removeItem(track.getTrackId())==true){
+								localTracks.remove(position);
+								localAdapter.notifyDataSetChanged();
+								dialog.cancel();
+								showAlertDialog("The track was removed from device", "");
+							} else{
+								showAlertDialog("There are some problems with removing, try again", "Error");
+								dialog.cancel();
+							}
+						}
+					}
+				  });
+
+				AlertDialog alertDialog = alertDialogBuilder.create();
+
+				alertDialog.show();
+			}
+	 
+	 private void showProgressDialog() {
+         
+ 		pDlg = new ProgressDialog(context);
+         pDlg.setMessage("Wait...");
+         pDlg.setCancelable(false);
+         pDlg.show();
+
+     }
     	
 }

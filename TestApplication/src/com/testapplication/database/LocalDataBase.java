@@ -3,6 +3,7 @@ package com.testapplication.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class LocalDataBase extends SQLiteOpenHelper {
 
@@ -24,10 +25,10 @@ public class LocalDataBase extends SQLiteOpenHelper {
 	
 	//SQL entries
     final static String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME +
-    		"(" + TRACKID + " " + INT + 
+    		"(" + TRACKID + " " + INT + "," + 
     		TRACKNAME + " " + VARCHAR + "(255)," +
     		ARTISTNAME + " " +VARCHAR + "(255)," +
-    		TRACKTIMEMILLIS + " " + INT +
+    		TRACKTIMEMILLIS + " " + INT + "," +
     		ARTWORKURL100 + " " + VARCHAR + "(255)," +
     		ARTWORKURL60 + " " + VARCHAR + "(255)," +
     		RATING + " " + INT + ")";
@@ -41,12 +42,13 @@ public class LocalDataBase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		Log.v("db", CREATE_TABLE);
 		db.execSQL(CREATE_TABLE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS tableName");
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 	    onCreate(db);
 	}
 	

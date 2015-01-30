@@ -11,6 +11,7 @@ public class Track implements android.os.Parcelable {
 	private String trackName;
 	private int trackTimeMillis;
 	private String artworkUrl100;
+	private String artworkUrl60String;
 	private Bitmap artworkUrl60;
 	private int rating;
 	
@@ -81,6 +82,14 @@ public class Track implements android.os.Parcelable {
 
 	public void setRating(int rating) {
 		this.rating = rating;
+	}
+
+	public String getArtworkUrl60String() {
+		return artworkUrl60String;
+	}
+
+	public void setArtworkUrl60String(String artworkUrl60String) {
+		this.artworkUrl60String = artworkUrl60String;
 	}
 
 	@Override

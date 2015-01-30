@@ -3,9 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_value"
-    android:visibility="gone"
     android:padding="10dp"
     android:orientation="vertical" >
+    <LinearLayout 
+        android:id="@+id/layoutDetail"
+        android:layout_width="match_parent"
+   		android:layout_height="match_parent"
+   		android:visibility="gone"
+   		android:orientation="vertical" >
 
     <ImageView
         android:id="@+id/image_detail"
@@ -90,5 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="@string/rate_track" />
+    
+    </LinearLayout>
     
 </LinearLayout>
