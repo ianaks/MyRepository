@@ -27,6 +27,10 @@
         
         <activity android:name="test.FragmentDetailActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"></activity>
-    </application>
+    	
+    	<activity android:name="test.FragmentRatingActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+   		
+    	</application>
 
 </manifest>

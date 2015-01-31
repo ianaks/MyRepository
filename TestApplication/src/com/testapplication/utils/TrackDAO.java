@@ -26,15 +26,22 @@ public class TrackDAO {
 	        String artworkUrl100){
 		if(getTrackById(trackId)==0){
 			try{
+				artistName = escapeChar(artistName);
+				trackName = escapeChar(trackName);
+				artworkUrl60 = escapeChar(artworkUrl60);
+				artworkUrl100 = escapeChar(artworkUrl100);
 		    	String insertQuery = "INSERT INTO " + 
 		    		    LocalDataBase.TABLE_NAME + 
 		    		     " (" + LocalDataBase.TRACKID + "," + LocalDataBase.ARTISTNAME+ "," + LocalDataBase.TRACKNAME+ "," +
 		    		     LocalDataBase.TRACKTIMEMILLIS+ "," + LocalDataBase.ARTWORKURL60+ "," + 
 		    		     LocalDataBase.ARTWORKURL100+ "," + LocalDataBase.RATING + ")"
-		    		     		+ " VALUES (" + trackId + ",?,?," + trackTimeMillis + ",?,?, 0)";
+		    		     		+ " VALUES (" + trackId + ",'" + artistName + "','" + trackName + "',"
+		    		     + trackTimeMillis + ",'" + artworkUrl60 + "','" + artworkUrl100 + "', 0)";
 		    	Log.v("db", insertQuery);
-		    	this.sqLiteDatabase.rawQuery(insertQuery, new String[] { artistName, trackName, 
-		    			artworkUrl60, artworkUrl100});
+		    	Cursor cursor = this.sqLiteDatabase.rawQuery(insertQuery, null);
+		    	while (cursor.moveToNext()) {
+		    		
+		    	}
 			}catch(SQLiteException e){
 				return e.getMessage();
 			}
@@ -61,6 +68,7 @@ public class TrackDAO {
     		    LocalDataBase.TABLE_NAME + 
     		     " WHERE " + LocalDataBase.TRACKNAME + " LIKE '%" + s + "%'"
     		     + " OR " + LocalDataBase.ARTISTNAME + " LIKE '%" + s + "%'";
+    	Log.v("db",selectQuery);
     	Cursor cursor =  this.sqLiteDatabase.rawQuery(selectQuery, null);
 		while (cursor.moveToNext()) {
 			Track track = new Track();
@@ -123,16 +131,22 @@ public class TrackDAO {
 		return listTracks;
     }
     
-    public void updateTracksRating(int trackId, int rating){
+    public String updateTracksRating(int trackId, int rating){
     	try{
 	    	String updateQuery = "UPDATE " + 
 	    		    LocalDataBase.TABLE_NAME + 
 	    		     " SET " + LocalDataBase.RATING + "="
 	    		     		 + rating 
 	    		     		 + " WHERE " + LocalDataBase.TRACKID + "=" + trackId;
-	    		    sqLiteDatabase.execSQL(updateQuery);
+	    	Cursor cursor =  this.sqLiteDatabase.rawQuery(updateQuery, null);
+	    	Log.v("db", updateQuery);
+	    	if(cursor.getCount()==0)
+	    		return "There are some problems with saving";
+	    	else 
+	    		return "The rating of the track is saved";
     	} catch(SQLiteException e){
     		Log.v("SQLException", e.getMessage());
+    		return "There are some problems with saving";
     	}
     }
     
@@ -143,6 +157,30 @@ public class TrackDAO {
     		Log.v("SQLException", e.getMessage());
     		return false;
     	}
+    }
+    
+    public int getRatingById(int trackId){
+    	try{
+	    	String updateQuery = "SELECT * FROM " +
+	    		    LocalDataBase.TABLE_NAME + 
+	    		     " WHERE " + LocalDataBase.TRACKID + "="
+	    		     		 + trackId;
+	    	Cursor cursor =  this.sqLiteDatabase.rawQuery(updateQuery, null);
+	    	Log.v("db", updateQuery);
+	    	if(cursor.getCount()==0)
+	    		return 0;
+	    	else{
+	    		cursor.moveToFirst();
+	    		return cursor.getInt(cursor.getColumnIndex(LocalDataBase.RATING));
+	    	}
+    	} catch(SQLiteException e){
+    		Log.v("SQLException", e.getMessage());
+    		return 0;
+    	}
+    }
+    
+    public String escapeChar(String string){
+    	return string.replaceAll("'", "''");
     }
 
 }

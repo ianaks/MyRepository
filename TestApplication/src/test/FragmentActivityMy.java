@@ -24,6 +24,7 @@ import com.testapplication.R;
 import com.testapplication.database.LocalDataBase;
 import com.testapplication.entity.Track;
 import com.testapplication.utils.DownloadImageTask;
+import com.testapplication.utils.LocalTracksFilter;
 import com.testapplication.utils.TrackDAO;
 import com.testapplication.utils.TracksLocalListAdapter;
 import com.testapplication.utils.TracksWebListAdapter;
@@ -53,9 +54,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class FragmentActivityMy extends FragmentActivity {
-	
-	// both fragments are on the screen
-		private boolean mTwoPane;
 		
 		private ProgressDialog pDlg;
 		
@@ -63,7 +61,6 @@ public class FragmentActivityMy extends FragmentActivity {
 		private List<Track> localTracks;
 		// search list of web tracks
 		private List<Track> webTracks;
-		//all id of tracks in local db
 		
 		// local data base
 		private static LocalDataBase localDataBase;
@@ -124,9 +121,10 @@ public class FragmentActivityMy extends FragmentActivity {
      	ratingBar = (RatingBar)findViewById(R.id.ratingBar);
      	layoutDetail = (LinearLayout)findViewById(R.id.layoutDetail);
      	
-     	findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
-     	findViewById(R.id.fragment_rating).setVisibility(View.GONE);
-     	
+     	if(layoutDetail!=null){
+     		findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
+     		findViewById(R.id.fragment_rating).setVisibility(View.GONE);
+     	}     	
      	
      	if(buttonRate!=null){
      		buttonRate.setVisibility(View.GONE);
@@ -135,7 +133,7 @@ public class FragmentActivityMy extends FragmentActivity {
 				@Override
 				public void onClick(View v) {
 					if(fragmentRating!=null){
-						ratingBar.setRating(selectedTrack.getRating());
+						fragmentRating.fillData(trackDAO.getRatingById(selectedTrack.getTrackId()));
 						findViewById(R.id.fragment_rating).setVisibility(View.VISIBLE);
 						findViewById(R.id.fragment_detail).setVisibility(View.GONE);
 					}
@@ -148,7 +146,7 @@ public class FragmentActivityMy extends FragmentActivity {
 				
 				@Override
 				public void onClick(View v) {
-					trackDAO.updateTracksRating(selectedTrack.getTrackId(), selectedTrack.getRating());
+					trackDAO.updateTracksRating(selectedTrack.getTrackId(), (int)ratingBar.getRating());
 					findViewById(R.id.fragment_rating).setVisibility(View.GONE);
 					findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
 				}
@@ -159,21 +157,9 @@ public class FragmentActivityMy extends FragmentActivity {
 			
 			@Override
 			public void onClick(View v) {
-				if(layoutDetail!=null)
-					layoutDetail.setVisibility(View.GONE);
-				buttonWeb.setBackgroundResource(R.drawable.gradient_bg_hover);
-				buttonLocal.setBackgroundResource(R.drawable.gradient_bg);
 				webPressed = true;
-				if(webTracks!=null && webTracks.size()>0){
-					lstWebTracks.setVisibility(View.VISIBLE);
-					lstLocalTracks.setVisibility(View.GONE);
-				} else{ 
-					empty.setVisibility(View.VISIBLE);
-				lstWebTracks.setVisibility(View.GONE);
-				lstLocalTracks.setVisibility(View.GONE);
-				}
-				if(buttonRate!=null)
-					buttonRate.setVisibility(View.GONE);
+				setOnTabClickedListener(buttonWeb, buttonLocal, lstWebTracks
+						, lstLocalTracks, webTracks);
 			}
 		});
      	
@@ -181,24 +167,9 @@ public class FragmentActivityMy extends FragmentActivity {
 			
 			@Override
 			public void onClick(View v) {
-				if(layoutDetail!=null)
-					layoutDetail.setVisibility(View.GONE);
-				buttonWeb.setBackgroundResource(R.drawable.gradient_bg);
-				buttonLocal.setBackgroundResource(R.drawable.gradient_bg_hover);
-				buttonLocal.setActivated(true);
-				buttonWeb.setActivated(false);
 				webPressed = false;
-				if(localTracks!=null && localTracks.size()>0){
-					lstWebTracks.setVisibility(View.GONE);
-					lstLocalTracks.setVisibility(View.VISIBLE);
-				} else{ 
-					empty.setVisibility(View.VISIBLE);
-					lstWebTracks.setVisibility(View.GONE);
-					lstLocalTracks.setVisibility(View.GONE);
-					
-				}
-				if(buttonRate!=null)
-					buttonRate.setVisibility(View.VISIBLE);
+				setOnTabClickedListener(buttonLocal, buttonWeb, lstLocalTracks
+						, lstWebTracks, localTracks);
 			}
 		});
      	  	
@@ -242,12 +213,16 @@ public class FragmentActivityMy extends FragmentActivity {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View view,
 						int position, long id) {
+					if(layoutDetail!=null){
+						findViewById(R.id.fragment_rating).setVisibility(View.GONE);
+						findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
+					}
 					selectedTrack = listTracks.get(position);
 					
 			     	 if (fragmentDetail != null) {
 			     			fragmentDetail.fillDetail(listTracks.get(position), type);
-			     			if(layoutDetail!=null)
-								layoutDetail.setVisibility(View.VISIBLE);
+							layoutDetail.setVisibility(View.VISIBLE);
+							
 			     	 } else{
 			     		 Intent intent = new Intent(context, FragmentDetailActivity.class);
 			     		 intent.putExtra("track", listTracks.get(position));
@@ -371,6 +346,8 @@ public class FragmentActivityMy extends FragmentActivity {
     					// TODO Auto-generated catch block
     					e.printStackTrace();
     				} 
+    				List<Track> allLocalTracks = trackDAO.getAllTracksFromLocalDB();
+    				LocalTracksFilter.filter(webTracks, allLocalTracks);
     				setList(webTracks, "web");
     				
     			} else {
@@ -471,5 +448,29 @@ public class FragmentActivityMy extends FragmentActivity {
          pDlg.show();
 
      }
+	 
+	 private void setOnTabClickedListener(Button pressedButton, Button unpressedButton,
+			 ListView first, ListView second, List<Track> tracks){
+		 if(layoutDetail!=null){
+				findViewById(R.id.fragment_rating).setVisibility(View.GONE);
+				findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
+				layoutDetail.setVisibility(View.GONE);
+			}
+		 	unpressedButton.setBackgroundResource(R.drawable.gradient_bg);
+			pressedButton.setBackgroundResource(R.drawable.gradient_bg_hover);
+			pressedButton.setActivated(true);
+			unpressedButton.setActivated(false);
+			if(tracks!=null && tracks.size()>0){
+				second.setVisibility(View.GONE);
+				first.setVisibility(View.VISIBLE);
+			} else{ 
+				empty.setVisibility(View.VISIBLE);
+				first.setVisibility(View.GONE);
+				second.setVisibility(View.GONE);
+				
+			}
+			if(buttonRate!=null)
+				buttonRate.setVisibility(View.VISIBLE);
+	 }
     	
 }

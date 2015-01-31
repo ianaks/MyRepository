@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 
 public class FragmentDetailActivity extends Activity {
@@ -34,19 +35,21 @@ public class FragmentDetailActivity extends Activity {
         track = (Track)extras.getParcelable("track");
         String type = extras.getString("type"); 
         
+        findViewById(R.id.layoutDetail).setVisibility(View.VISIBLE);
+        
         context = this;
         
         FragmentDetail fragmentDetail = (FragmentDetail)getFragmentManager().findFragmentById(R.id.fragment_detail);
         
         fragmentDetail.fillDetail(track, type);
         
-        final RatingBar ratingBar = (RatingBar)findViewById(R.id.ratingBar);
-        ratingBar.setOnClickListener(new OnClickListener() {
+        final Button ratingButton = (Button)findViewById(R.id.ratingButton);
+        ratingButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(context, FragmentRatingActivity.class);
-				intent.putExtra("rating", track.getRating());
+				intent.putExtra("rating", trackDAO.getRatingById(track.getTrackId()));
 				startActivityForResult(intent, 0);
 			}
 		});

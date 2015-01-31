@@ -24,7 +24,7 @@ public class FragmentRatingActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         final int rating = (int)extras.getInt("rating");
         
-        FragmentRating fragmentRating = (FragmentRating)getFragmentManager().findFragmentById(R.id.fragment_detail);
+        FragmentRating fragmentRating = (FragmentRating)getFragmentManager().findFragmentById(R.id.fragment_rating);
         
         fragmentRating.fillData(rating);
         

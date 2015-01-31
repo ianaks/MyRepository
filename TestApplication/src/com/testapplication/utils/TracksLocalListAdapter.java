@@ -25,7 +25,6 @@ public class TracksLocalListAdapter extends ArrayAdapter<Track> {
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		View view = null;
 		
 		ViewHolder holder = null;
 		
@@ -45,7 +44,7 @@ public class TracksLocalListAdapter extends ArrayAdapter<Track> {
 			convertView.setTag(holder);
 			
 		} else {
-			holder = (ViewHolder)view.getTag();
+			holder = (ViewHolder)convertView.getTag();
 		}
 		
 		if(track!=null){
