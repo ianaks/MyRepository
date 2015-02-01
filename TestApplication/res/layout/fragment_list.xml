@@ -17,7 +17,8 @@
             android:drawableLeft="@android:drawable/ic_menu_search"
             android:inputType="text"
             android:hint="@string/search_music"
-            android:singleLine="true" >
+            android:singleLine="true"
+            android:imeOptions="actionDone" >
 
             <requestFocus />
         </EditText>

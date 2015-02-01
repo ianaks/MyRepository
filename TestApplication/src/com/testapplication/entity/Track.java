@@ -19,12 +19,16 @@ public class Track implements android.os.Parcelable {
 		
 	}
 	
-	public Track(int artistId, int trackId, String artistName,
-			String trackName, int trackTimeMillis){
+	public Track(int trackId, String artistName,
+			String trackName, int trackTimeMillis, String artworkUrl60String,
+			String artworkUrl100, int rating){
 		this.trackId = trackId;
 		this.artistName = artistName;
 		this.trackName = trackName;
 		this.trackTimeMillis = trackTimeMillis;
+		this.artworkUrl60String = artworkUrl60String;
+		this.artworkUrl100 = artworkUrl100;
+		this.rating = rating;
 		
 	}
 	
@@ -99,20 +103,23 @@ public class Track implements android.os.Parcelable {
 	}
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeValue(trackId);
-		dest.writeValue(artistName);
-		dest.writeValue(trackName);
-		dest.writeValue(trackTimeMillis);	
-		dest.writeValue(artworkUrl60);
-		dest.writeValue(artworkUrl100);
+		dest.writeInt(trackId);
+		dest.writeString(artistName);
+		dest.writeString(trackName);
+		dest.writeInt(trackTimeMillis);	
+		dest.writeString(artworkUrl60String);
+		dest.writeString(artworkUrl100);
+		dest.writeInt(rating);
 	}	
 	
 	 private Track(Parcel in) {
+		 trackId = in.readInt();
          artistName = in.readString();
-         rating = in.readInt();
-         trackId = in.readInt();
          trackName = in.readString();
          trackTimeMillis = in.readInt();
+         artworkUrl60String = in.readString();
+         artworkUrl100 = in.readString();
+         rating = in.readInt();
      }
 	
 	public static final Parcelable.Creator<Track> CREATOR

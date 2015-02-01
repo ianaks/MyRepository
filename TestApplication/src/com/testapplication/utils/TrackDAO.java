@@ -167,11 +167,15 @@ public class TrackDAO {
 	    		     		 + trackId;
 	    	Cursor cursor =  this.sqLiteDatabase.rawQuery(updateQuery, null);
 	    	Log.v("db", updateQuery);
-	    	if(cursor.getCount()==0)
+	    	if(cursor.getCount()==0){
+	    		cursor.close();
 	    		return 0;
+	    	}
 	    	else{
 	    		cursor.moveToFirst();
-	    		return cursor.getInt(cursor.getColumnIndex(LocalDataBase.RATING));
+	    		int rating = cursor.getInt(cursor.getColumnIndex(LocalDataBase.RATING));
+	    		cursor.close();
+	    		return rating;
 	    	}
     	} catch(SQLiteException e){
     		Log.v("SQLException", e.getMessage());

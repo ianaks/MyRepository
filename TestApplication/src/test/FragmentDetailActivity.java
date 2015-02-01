@@ -1,7 +1,6 @@
 package test;
 
 import com.testapplication.R;
-import com.testapplication.database.LocalDataBase;
 import com.testapplication.entity.Track;
 import com.testapplication.utils.TrackDAO;
 
@@ -13,8 +12,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RatingBar;
 
 public class FragmentDetailActivity extends Activity {
 	 String currentLink;
@@ -42,8 +39,13 @@ public class FragmentDetailActivity extends Activity {
         FragmentDetail fragmentDetail = (FragmentDetail)getFragmentManager().findFragmentById(R.id.fragment_detail);
         
         fragmentDetail.fillDetail(track, type);
-        
         final Button ratingButton = (Button)findViewById(R.id.ratingButton);
+        
+        if(type.equals("web"))
+        	ratingButton.setVisibility(View.GONE);
+        else
+        	ratingButton.setVisibility(View.VISIBLE);
+        
         ratingButton.setOnClickListener(new OnClickListener() {
 			
 			@Override

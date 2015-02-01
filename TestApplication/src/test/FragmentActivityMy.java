@@ -20,15 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.testapplication.R;
-import com.testapplication.database.LocalDataBase;
-import com.testapplication.entity.Track;
-import com.testapplication.utils.DownloadImageTask;
-import com.testapplication.utils.LocalTracksFilter;
-import com.testapplication.utils.TrackDAO;
-import com.testapplication.utils.TracksLocalListAdapter;
-import com.testapplication.utils.TracksWebListAdapter;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -52,6 +43,16 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+
+import com.testapplication.R;
+import com.testapplication.database.LocalDataBase;
+import com.testapplication.entity.Track;
+import com.testapplication.utils.DownloadImageTask;
+import com.testapplication.utils.LocalTracksFilter;
+import com.testapplication.utils.TrackDAO;
+import com.testapplication.utils.TracksLocalListAdapter;
+import com.testapplication.utils.TracksWebListAdapter;
 
 public class FragmentActivityMy extends FragmentActivity {
 		
@@ -107,7 +108,7 @@ public class FragmentActivityMy extends FragmentActivity {
     	fragmentDetail = (FragmentDetail)getFragmentManager().findFragmentById(R.id.fragment_detail);
     	fragmentRating = (FragmentRating)getFragmentManager().findFragmentById(R.id.fragment_rating);
     	
-    	localDataBase = new LocalDataBase(this, 2);
+    	localDataBase = new LocalDataBase(this, 1);
      	trackDAO = new TrackDAO(localDataBase.getWritableDatabase());
      	
      	searchMusic = (EditText)findViewById(R.id.searchEdit);    	
@@ -160,6 +161,8 @@ public class FragmentActivityMy extends FragmentActivity {
 				webPressed = true;
 				setOnTabClickedListener(buttonWeb, buttonLocal, lstWebTracks
 						, lstLocalTracks, webTracks);
+				if(buttonRate!=null)
+					buttonRate.setVisibility(View.GONE);
 			}
 		});
      	
@@ -170,18 +173,25 @@ public class FragmentActivityMy extends FragmentActivity {
 				webPressed = false;
 				setOnTabClickedListener(buttonLocal, buttonWeb, lstLocalTracks
 						, lstWebTracks, localTracks);
+				if(buttonRate!=null)
+					buttonRate.setVisibility(View.VISIBLE);
 			}
 		});
      	  	
      	searchMusic.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
-                	if(webPressed==true){
-                		searchMusic(v.getText().toString()); 
-                	} else{
-                		localTracks = trackDAO.getTrackByName(v.getText().toString());
-                		setList(localTracks, "local");
+                	if (searchMusic.getText().length() < 3) {
+                        Toast.makeText(FragmentActivityMy.this, "Not enough characters", Toast.LENGTH_SHORT).show();;
                 	}
+                    else{	
+                    	if(webPressed==true){
+                		searchMusic(v.getText().toString()); 
+	                	} else{
+	                		localTracks = trackDAO.getTrackByName(v.getText().toString());
+	                		setList(localTracks, "local");
+	                	}
+                    }
                 	searchMusic.requestFocus();
                 }    
                 return false;
@@ -237,7 +247,7 @@ public class FragmentActivityMy extends FragmentActivity {
 				public boolean onItemLongClick(AdapterView<?> parent,
 						View view, int position, long id) {
 					showOnItemClickDialog(type, position, listTracks.get(position));
-					return false;
+					return true;
 				}
 			});
 			if(type.equals("web")){
@@ -414,6 +424,8 @@ public class FragmentActivityMy extends FragmentActivity {
 							else if(result.equals("OK")){
 								webTracks.remove(position);
 								webAdapter.notifyDataSetChanged();
+								if(layoutDetail!=null)
+									layoutDetail.setVisibility(View.GONE);
 								dialog.cancel();
 								showAlertDialog("The track is saved", "");
 							} else {
@@ -425,6 +437,8 @@ public class FragmentActivityMy extends FragmentActivity {
 							if(trackDAO.removeItem(track.getTrackId())==true){
 								localTracks.remove(position);
 								localAdapter.notifyDataSetChanged();
+								if(layoutDetail!=null)
+									layoutDetail.setVisibility(View.GONE);
 								dialog.cancel();
 								showAlertDialog("The track was removed from device", "");
 							} else{
@@ -433,7 +447,14 @@ public class FragmentActivityMy extends FragmentActivity {
 							}
 						}
 					}
-				  });
+				  })
+				.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();						
+					}
+				});
 
 				AlertDialog alertDialog = alertDialogBuilder.create();
 
@@ -467,10 +488,15 @@ public class FragmentActivityMy extends FragmentActivity {
 				empty.setVisibility(View.VISIBLE);
 				first.setVisibility(View.GONE);
 				second.setVisibility(View.GONE);
-				
 			}
-			if(buttonRate!=null)
-				buttonRate.setVisibility(View.VISIBLE);
+	 }
+	 
+	 @Override
+	 protected void onDestroy() {
+	     super.onDestroy();
+	     if (localDataBase != null) {
+	    	 localDataBase.close();
+	     }
 	 }
     	
 }
