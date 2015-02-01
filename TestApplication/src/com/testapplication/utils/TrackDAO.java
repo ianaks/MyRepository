@@ -64,6 +64,7 @@ public class TrackDAO {
 	
 	public List<Track> getTrackByName(String s){
 		List<Track> listTracks = new ArrayList<Track>();
+		s = escapeChar(s);
     	String selectQuery = "SELECT * FROM " + 
     		    LocalDataBase.TABLE_NAME + 
     		     " WHERE " + LocalDataBase.TRACKNAME + " LIKE '%" + s + "%'"
