@@ -62,6 +62,7 @@
             android:layout_height="20dp"
             android:gravity="fill"
             android:layout_marginTop="10dp"
+            android:background="@drawable/rating_none"
             android:contentDescription="@string/app_name" />    
     
     

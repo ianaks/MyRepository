@@ -5,103 +5,98 @@
     android:background="@drawable/bg_value"
     android:padding="10dp"
     android:orientation="vertical" >
-    <LinearLayout 
-        android:id="@+id/layoutDetail"
-        android:layout_width="match_parent"
-   		android:layout_height="match_parent"
-   		android:visibility="gone"
-   		android:orientation="vertical" >
-
-    <ImageView
-        android:id="@+id/image_detail"
-        android:contentDescription="@string/app_name"
-        android:layout_width="match_parent"
-        android:layout_height="200dp" />
-   
-    <RelativeLayout 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        
-        <TextView
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:id="@+id/trackTitleTxt"
-		    android:text="@string/track_title"
-		    android:textSize="15sp"
-		    android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/trackTitleDetail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/trackTitleTxt"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-        
-    </RelativeLayout>
-    
-    <RelativeLayout 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-        
-	    <TextView
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:id="@+id/artistTitleTxt"
-		    android:text="@string/artist"
-		    android:textSize="15sp"
-		    android:textStyle="bold" />
-
-	    <TextView
-            android:id="@+id/artistTitleDetail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/artistTitleTxt"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-	</RelativeLayout>
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+	    <LinearLayout 
+	        android:id="@+id/layoutDetail"
+	        android:layout_width="match_parent"
+	   		android:layout_height="wrap_content"
+	   		android:padding="10dp"
+	   		android:visibility="gone"
+	   		android:orientation="vertical" >
 	
-    <RelativeLayout 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+	    <ImageView
+	        android:id="@+id/image_detail"
+	        android:contentDescription="@string/app_name"
+	        android:layout_width="match_parent"
+	        android:layout_height="200dp" />
+	   
+	    <RelativeLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal">
+	        
+	        <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:id="@+id/trackTitleTxt"
+			    android:text="@string/track_title"
+			    android:textSize="15sp"
+			    android:textStyle="bold"
+			    style="@style/BlueText" />
+	
+	        <TextView
+	            android:layout_toRightOf="@+id/trackTitleTxt"
+	            android:id="@+id/trackTitleDetail"
+	            style = "@style/TextViewDetail" />
+	        
+	    </RelativeLayout>
 	    
-	    <TextView
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:text="@string/duration"
-		    android:id="@+id/durationTxt"
-		    android:textSize="15sp"
-		    android:textStyle="bold" />
+	    <RelativeLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:layout_marginBottom="10dp"
+	        android:orientation="horizontal">
+	        
+		    <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:id="@+id/artistTitleTxt"
+			    android:text="@string/artist"
+			    android:textSize="15sp"
+			    android:textStyle="bold"
+			    style="@style/BlueText"  />
+	
+		    <TextView
+	            android:id="@+id/artistTitleDetail"
+	            android:layout_toRightOf="@+id/artistTitleTxt"
+	            style = "@style/TextViewDetail" />
+	
+		</RelativeLayout>
+		
+	    <RelativeLayout 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="10dp"
+	        android:orientation="horizontal">
+		    
+		    <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:text="@string/duration"
+			    android:id="@+id/durationTxt"
+			    style="@style/BlueText" 
+			    android:textSize="15sp"
+			    android:textStyle="bold" />
+		    
+		    <TextView
+	            android:id="@+id/durationDetail"
+	            android:layout_toRightOf="@+id/durationTxt"
+	            style = "@style/TextViewDetail" />
+		 </RelativeLayout>
 	    
-	    <TextView
-            android:id="@+id/durationDetail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/durationTxt"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-	 </RelativeLayout>
-    
-    <Button
-        android:id="@+id/ratingButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/rate_track" />
-    
-    </LinearLayout>
+	    <Button
+	        android:id="@+id/ratingButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:padding="10dp"
+	        android:layout_gravity="center_horizontal"
+	        android:background="@drawable/list_selector"
+	        android:text="@string/rate_track" />
+	    
+	    </LinearLayout>
+	  </ScrollView>
     
 </LinearLayout>

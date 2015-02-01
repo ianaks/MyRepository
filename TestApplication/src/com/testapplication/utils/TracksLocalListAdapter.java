@@ -66,6 +66,18 @@ public class TracksLocalListAdapter extends ArrayAdapter<Track> {
 				holder.icon.setImageBitmap(track.getArtworkUrl60());				
 			}
 			holder.rating.setVisibility(View.VISIBLE);
+			if(track.getRating()==0)
+				holder.rating.setBackgroundResource(R.drawable.rating_none);
+			else if(track.getRating()==1)
+				holder.rating.setBackgroundResource(R.drawable.rating_one);
+			else if(track.getRating()==2)
+				holder.rating.setBackgroundResource(R.drawable.rating_two);
+			else if(track.getRating()==3)
+				holder.rating.setBackgroundResource(R.drawable.rating_three);
+			else if(track.getRating()==4)
+				holder.rating.setBackgroundResource(R.drawable.rating_four);
+			else if(track.getRating()==5)
+				holder.rating.setBackgroundResource(R.drawable.rating_five);
 		}
 		return convertView;
 	}

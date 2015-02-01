@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -52,7 +53,7 @@ public class FragmentDetailActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(context, FragmentRatingActivity.class);
 				intent.putExtra("rating", trackDAO.getRatingById(track.getTrackId()));
-				startActivityForResult(intent, 0);
+				startActivityForResult(intent, 1);
 			}
 		});
         
@@ -61,11 +62,19 @@ public class FragmentDetailActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-	    if(resultCode==RESULT_OK && requestCode==0){
-	    Bundle bundle = data.getExtras();
-	    int rating = bundle.getInt("rating");
-	    trackDAO.updateTracksRating(track.getTrackId(), rating);
+	    if(resultCode==RESULT_OK && requestCode==1){
+		    Bundle bundle = data.getExtras();
+		    int rating = bundle.getInt("rating");
+		    trackDAO.updateTracksRating(track.getTrackId(), rating);
+	    }
     }
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
     
     @Override

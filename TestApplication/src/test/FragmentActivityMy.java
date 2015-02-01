@@ -3,6 +3,8 @@ package test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -94,6 +96,7 @@ public class FragmentActivityMy extends FragmentActivity {
 	    Context context;
 	    
 	    Track selectedTrack;
+	    String lastEditTextSearch;
 	    
 	    
     @Override
@@ -143,11 +146,12 @@ public class FragmentActivityMy extends FragmentActivity {
      	}
      	
      	if(buttonSave!=null){
-     		buttonSave.setOnClickListener(new OnClickListener() {
-				
+     		buttonSave.setOnClickListener(new OnClickListener() {				
 				@Override
 				public void onClick(View v) {
 					trackDAO.updateTracksRating(selectedTrack.getTrackId(), (int)ratingBar.getRating());
+					localTracks = trackDAO.getTrackByName(lastEditTextSearch);
+		    		setList(localTracks, "local");
 					findViewById(R.id.fragment_rating).setVisibility(View.GONE);
 					findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
 				}
@@ -188,6 +192,7 @@ public class FragmentActivityMy extends FragmentActivity {
                     	if(webPressed==true){
                 		searchMusic(v.getText().toString()); 
 	                	} else{
+	                		lastEditTextSearch = v.getText().toString();
 	                		localTracks = trackDAO.getTrackByName(v.getText().toString());
 	                		setList(localTracks, "local");
 	                	}
@@ -200,7 +205,22 @@ public class FragmentActivityMy extends FragmentActivity {
 
    }
     
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+	    if(requestCode==0){
+	    	localTracks = trackDAO.getTrackByName(lastEditTextSearch);
+    		setList(localTracks, "local");
+	    }
+    }
+    
     private void searchMusic(String term){
+    	try {
+			term = URLEncoder.encode(term, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	WebServiceConnection webServiceConnection = new WebServiceConnection(
         		getResources().getString(R.string.web_service_url) +
         		"?term="+term+"&media=music&entity=song");
@@ -223,6 +243,7 @@ public class FragmentActivityMy extends FragmentActivity {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View view,
 						int position, long id) {
+					System.gc();
 					if(layoutDetail!=null){
 						findViewById(R.id.fragment_rating).setVisibility(View.GONE);
 						findViewById(R.id.fragment_detail).setVisibility(View.VISIBLE);
@@ -237,7 +258,7 @@ public class FragmentActivityMy extends FragmentActivity {
 			     		 Intent intent = new Intent(context, FragmentDetailActivity.class);
 			     		 intent.putExtra("track", listTracks.get(position));
 			     		 intent.putExtra("type", type);
-			     		 startActivity(intent);
+			     		 startActivityForResult(intent, 0);
 			     	 }
 				}
 			});
