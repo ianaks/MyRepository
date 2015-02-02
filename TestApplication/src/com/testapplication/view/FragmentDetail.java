@@ -53,15 +53,18 @@ public class FragmentDetail extends Fragment {
 				trackName.setText(track.getTrackName());
 			if(track.getArtistName()!=null)
 				artistTitle.setText(track.getArtistName());
-			
-			long hours = TimeUnit.MILLISECONDS.toHours(track.getTrackTimeMillis());
-			long minutes = TimeUnit.MILLISECONDS.toMinutes(track.getTrackTimeMillis());
-			long seconds = TimeUnit.MILLISECONDS.toSeconds(track.getTrackTimeMillis());
-			
-			if(hours!=0){
-				duration.setText("" + hours + ":" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
-			} else 
-				duration.setText("" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
+			if(track.getTrackTimeMillis()!=0){
+				long hours = TimeUnit.MILLISECONDS.toHours(track.getTrackTimeMillis());
+				long minutes = TimeUnit.MILLISECONDS.toMinutes(track.getTrackTimeMillis());
+				long seconds = TimeUnit.MILLISECONDS.toSeconds(track.getTrackTimeMillis());
+				
+				if(hours!=0){
+					duration.setText("" + hours + ":" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
+				} else 
+					duration.setText("" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
+			} else{
+				duration.setText("-");
+			}
 			
     	}
     }

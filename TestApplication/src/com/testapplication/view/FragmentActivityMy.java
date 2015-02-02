@@ -341,7 +341,6 @@ public class FragmentActivityMy extends FragmentActivity {
     		
     		if(result!=null && result instanceof String){
     				String jsonString;
-    				boolean conectionError = false;
     				try {
     					
     					jsonString = result;
@@ -358,25 +357,20 @@ public class FragmentActivityMy extends FragmentActivity {
 	    							downloadImageTask.execute(jsonArray.getJSONObject(i).getString("artworkUrl60"));
 	    							if(downloadImageTask.get()!=null && !downloadImageTask.get().isEmpty()){
 	    								track.setArtworkUrl60(downloadImageTask.get().get(0));	
-	    							} else{
-	    								showAlertDialog("Connection error", "Error");
-	    								conectionError = true;
-	    								break;
-	    							}
-	    							
-	    							} catch (InterruptedException e) {
-	    								// TODO Auto-generated catch block
-	    								e.printStackTrace();
-	    							} catch (ExecutionException e) {
-	    								// TODO Auto-generated catch block
-	    								e.printStackTrace();
-	    							}
+	    							} 	    							
+    							} catch (InterruptedException e) {
+    								// TODO Auto-generated catch block
+    								e.printStackTrace();
+    							} catch (ExecutionException e) {
+    								// TODO Auto-generated catch block
+    								e.printStackTrace();
+    							}
 	    						
 	    						track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
 	    						track.setArtworkUrl60String(jsonArray.getJSONObject(i).getString("artworkUrl60"));
 	    						track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
 	    						track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
-	    						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
+	    						track.setTrackTimeMillis(jsonArray.getJSONObject(i).optInt("trackTimeMillis", 0));
 	    						webTracks.add(track);
     						} catch (ParseException e1) {
     	    					e1.printStackTrace();
@@ -389,11 +383,9 @@ public class FragmentActivityMy extends FragmentActivity {
     				} catch (JSONException e) {
     					e.printStackTrace();
     				} 
-    				if(!conectionError){
 	    				List<Track> allLocalTracks = trackDAO.getAllTracksFromLocalDB();
 	    				LocalTracksFilter.filter(webTracks, allLocalTracks);
 	    				setList(webTracks, "web");
-    				}
     				
     			} else {
     				showAlertDialog("Server is temporarily unavailable", "Connection error");

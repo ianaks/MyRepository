@@ -49,15 +49,18 @@ public class TracksWebListAdapter extends ArrayAdapter<Track> {
 		ViewHolder holder = (ViewHolder)view.getTag();
 		
 		if(track!=null){
-			long hours = TimeUnit.MILLISECONDS.toHours(track.getTrackTimeMillis());
-			long minutes = TimeUnit.MILLISECONDS.toMinutes(track.getTrackTimeMillis());
-			long seconds = TimeUnit.MILLISECONDS.toSeconds(track.getTrackTimeMillis());
-			
-			if(hours!=0){
-				holder.duration.setText("" + hours + ":" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
-			} else 
-				holder.duration.setText("" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
-			
+			if(track.getTrackTimeMillis()!=0){
+				long hours = TimeUnit.MILLISECONDS.toHours(track.getTrackTimeMillis());
+				long minutes = TimeUnit.MILLISECONDS.toMinutes(track.getTrackTimeMillis());
+				long seconds = TimeUnit.MILLISECONDS.toSeconds(track.getTrackTimeMillis());
+				
+				if(hours!=0){
+					holder.duration.setText("" + hours + ":" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
+				} else 
+					holder.duration.setText("" + minutes + ":" + ((Long.toString(seconds).length()>2)?Long.toString(seconds).substring(0, 2):Long.toString(seconds)));
+			} else{
+				holder.duration.setText("");
+			}		
 			
 			if(track.getTrackName()!=null)
 				holder.track.setText(track.getTrackName());
