@@ -1,4 +1,4 @@
-package test;
+package com.testapplication.view;
 
 import com.testapplication.R;
 import com.testapplication.database.LocalDataBase;

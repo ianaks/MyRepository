@@ -1,4 +1,4 @@
-package test;
+package com.testapplication.view;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,8 @@ public class FragmentDetail extends Fragment {
 					DownloadImageTask downloadImageTask = new DownloadImageTask();
 					downloadImageTask.execute(track.getArtworkUrl100());
 					
-					imageView.setImageBitmap(downloadImageTask.get().get(0));	
+					if(downloadImageTask.get()!=null && !downloadImageTask.get().isEmpty())					
+						imageView.setImageBitmap(downloadImageTask.get().get(0));	
 					
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block

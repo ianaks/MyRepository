@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <fragment class="test.FragmentRating"
+    <fragment class="com.testapplication.view.FragmentRating"
     	android:id="@+id/fragment_rating"
     	android:layout_width="match_parent"
     	android:layout_height="match_parent" >

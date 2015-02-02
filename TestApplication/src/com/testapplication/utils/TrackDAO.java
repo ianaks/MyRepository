@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import com.testapplication.database.LocalDataBase;
 import com.testapplication.entity.Track;
+import com.testapplication.view.FragmentActivityMy;
 
 public class TrackDAO {
 	
@@ -24,7 +24,7 @@ public class TrackDAO {
 	public String insertTrackInLocalDB(int trackId, String artistName, 
     		String trackName, int trackTimeMillis, String artworkUrl60,
 	        String artworkUrl100){
-		if(getTrackById(trackId)==0){
+		if(!getTrackById(trackId)){
 			try{
 				artistName = escapeChar(artistName);
 				trackName = escapeChar(trackName);
@@ -49,7 +49,7 @@ public class TrackDAO {
 		} else return "EXISTS";
     }
 	
-	public int getTrackById(int trackId){
+	public boolean getTrackById(int trackId){
 		
     	String selectQuery = "SELECT * FROM " + 
     		    LocalDataBase.TABLE_NAME + 
@@ -57,18 +57,20 @@ public class TrackDAO {
     	Cursor cursor =  this.sqLiteDatabase.rawQuery(selectQuery, null);
     	if(cursor!=null && cursor.getCount()!=0){
     		cursor.close();
-    		return 1;
-    	} else return 0;
+    		return true;
+    	} else {
+    		return false;
+    	}
     			   
     }
 	
-	public List<Track> getTrackByName(String s){
+	public List<Track> getTrackByName(String name){
 		List<Track> listTracks = new ArrayList<Track>();
-		s = escapeChar(s);
+		name = escapeChar(name);
     	String selectQuery = "SELECT * FROM " + 
     		    LocalDataBase.TABLE_NAME + 
-    		     " WHERE " + LocalDataBase.TRACKNAME + " LIKE '%" + s + "%'"
-    		     + " OR " + LocalDataBase.ARTISTNAME + " LIKE '%" + s + "%'";
+    		     " WHERE " + LocalDataBase.TRACKNAME + " LIKE '%" + name + "%'"
+    		     + " OR " + LocalDataBase.ARTISTNAME + " LIKE '%" + name + "%'";
     	Log.v("db",selectQuery);
     	Cursor cursor =  this.sqLiteDatabase.rawQuery(selectQuery, null);
 		while (cursor.moveToNext()) {
@@ -80,15 +82,20 @@ public class TrackDAO {
 				DownloadImageTask downloadImageTask = new DownloadImageTask();
 				downloadImageTask.execute(track.getArtworkUrl60String());
 				
-				track.setArtworkUrl60(downloadImageTask.get().get(0));	
-				
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if(downloadImageTask.get()!=null && !downloadImageTask.get().isEmpty()){
+					track.setArtworkUrl60(downloadImageTask.get().get(0));	
+				} else {
+					FragmentActivityMy.showAlertDialog("Connection error", "Error");
+					listTracks = new ArrayList<Track>();
+					break;
 				}
+			} catch (InterruptedException e) {
+				FragmentActivityMy.showAlertDialog("Connection error", "Error");
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				FragmentActivityMy.showAlertDialog("Connection error", "Error");
+				e.printStackTrace();
+			}
 			track.setRating(cursor.getInt(cursor.getColumnIndex(LocalDataBase.RATING)));
 			track.setTrackId(cursor.getInt(cursor.getColumnIndex(LocalDataBase.TRACKID)));
 			track.setTrackName(cursor.getString(cursor.getColumnIndex(LocalDataBase.TRACKNAME)));
@@ -112,16 +119,20 @@ public class TrackDAO {
 			try {
 				DownloadImageTask downloadImageTask = new DownloadImageTask();
 				downloadImageTask.execute(track.getArtworkUrl60String());
-				
-				track.setArtworkUrl60(downloadImageTask.get().get(0));	
-				
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if(downloadImageTask.get()!=null && !downloadImageTask.get().isEmpty())	
+					track.setArtworkUrl60(downloadImageTask.get().get(0));	
+				else{ 
+					FragmentActivityMy.showAlertDialog("Connection error", "Error");
+					listTracks = new ArrayList<Track>();
+					break;
 				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			track.setRating(cursor.getInt(cursor.getColumnIndex(LocalDataBase.RATING)));
 			track.setTrackId(cursor.getInt(cursor.getColumnIndex(LocalDataBase.TRACKID)));
 			track.setTrackName(cursor.getString(cursor.getColumnIndex(LocalDataBase.TRACKNAME)));

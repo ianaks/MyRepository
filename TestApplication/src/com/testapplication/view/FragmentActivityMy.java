@@ -1,4 +1,4 @@
-package test;
+package com.testapplication.view;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -93,7 +93,7 @@ public class FragmentActivityMy extends FragmentActivity {
 	    TracksWebListAdapter webAdapter;
 	    TracksLocalListAdapter localAdapter;
 	    
-	    Context context;
+	    static Context context;
 	    
 	    Track selectedTrack;
 	    String lastEditTextSearch;
@@ -189,8 +189,8 @@ public class FragmentActivityMy extends FragmentActivity {
                         Toast.makeText(FragmentActivityMy.this, "Not enough characters", Toast.LENGTH_SHORT).show();;
                 	}
                     else{	
-                    	if(webPressed==true){
-                		searchMusic(v.getText().toString()); 
+                    	if(webPressed){
+                    		searchMusic(v.getText().toString()); 
 	                	} else{
 	                		lastEditTextSearch = v.getText().toString();
 	                		localTracks = trackDAO.getTrackByName(v.getText().toString());
@@ -209,8 +209,10 @@ public class FragmentActivityMy extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
 	    if(requestCode==0){
-	    	localTracks = trackDAO.getTrackByName(lastEditTextSearch);
-    		setList(localTracks, "local");
+	    	if(!webPressed){
+		    	localTracks = trackDAO.getTrackByName(lastEditTextSearch);
+	    		setList(localTracks, "local");
+	    	}
 	    }
     }
     
@@ -290,8 +292,8 @@ public class FragmentActivityMy extends FragmentActivity {
 
     class WebServiceConnection extends AsyncTask<String, List<Track>, String>{
 
-    	private static final int CONN_TIMEOUT = 300000;
-        private static final int SOCKET_TIMEOUT = 500000;
+    	private static final int CONN_TIMEOUT = 30000;
+        private static final int SOCKET_TIMEOUT = 50000;
         
     	private String url;
     	
@@ -339,6 +341,7 @@ public class FragmentActivityMy extends FragmentActivity {
     		
     		if(result!=null && result instanceof String){
     				String jsonString;
+    				boolean conectionError = false;
     				try {
     					
     					jsonString = result;
@@ -347,39 +350,50 @@ public class FragmentActivityMy extends FragmentActivity {
     					JSONArray jsonArray = jsonObject.getJSONArray("results");
     					webTracks = new ArrayList<Track>();
     					for(int i=0; i<jsonArray.length();i++){
-    						Track track= new Track();
-    						track.setArtistName(jsonArray.getJSONObject(i).getString("artistName"));
+    						Track track= new Track();    						
     						try {
-    							DownloadImageTask downloadImageTask = new DownloadImageTask();
-    							downloadImageTask.execute(jsonArray.getJSONObject(i).getString("artworkUrl60"));
-    							
-    							track.setArtworkUrl60(downloadImageTask.get().get(0));	
-    							
-    							} catch (InterruptedException e) {
-    								// TODO Auto-generated catch block
-    								e.printStackTrace();
-    							} catch (ExecutionException e) {
-    								// TODO Auto-generated catch block
-    								e.printStackTrace();
-    							}
-    						
-    						track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
-    						track.setArtworkUrl60String(jsonArray.getJSONObject(i).getString("artworkUrl60"));
-    						track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
-    						track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
-    						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
-    						webTracks.add(track);
+	    						track.setArtistName(jsonArray.getJSONObject(i).getString("artistName"));
+	    						try {
+	    							DownloadImageTask downloadImageTask = new DownloadImageTask();
+	    							downloadImageTask.execute(jsonArray.getJSONObject(i).getString("artworkUrl60"));
+	    							if(downloadImageTask.get()!=null && !downloadImageTask.get().isEmpty()){
+	    								track.setArtworkUrl60(downloadImageTask.get().get(0));	
+	    							} else{
+	    								showAlertDialog("Connection error", "Error");
+	    								conectionError = true;
+	    								break;
+	    							}
+	    							
+	    							} catch (InterruptedException e) {
+	    								// TODO Auto-generated catch block
+	    								e.printStackTrace();
+	    							} catch (ExecutionException e) {
+	    								// TODO Auto-generated catch block
+	    								e.printStackTrace();
+	    							}
+	    						
+	    						track.setArtworkUrl100(jsonArray.getJSONObject(i).getString("artworkUrl100"));
+	    						track.setArtworkUrl60String(jsonArray.getJSONObject(i).getString("artworkUrl60"));
+	    						track.setTrackId(jsonArray.getJSONObject(i).getInt("trackId"));
+	    						track.setTrackName(jsonArray.getJSONObject(i).getString("trackName"));
+	    						track.setTrackTimeMillis(jsonArray.getJSONObject(i).getInt("trackTimeMillis"));
+	    						webTracks.add(track);
+    						} catch (ParseException e1) {
+    	    					e1.printStackTrace();
+    	    				} catch (JSONException e) {
+    	    					e.printStackTrace();
+    	    				} 
     					}
     				} catch (ParseException e1) {
-    						// TODO Auto-generated catch block
-    						e1.printStackTrace();
-    				  } catch (JSONException e) {
-    					// TODO Auto-generated catch block
+    					e1.printStackTrace();
+    				} catch (JSONException e) {
     					e.printStackTrace();
     				} 
-    				List<Track> allLocalTracks = trackDAO.getAllTracksFromLocalDB();
-    				LocalTracksFilter.filter(webTracks, allLocalTracks);
-    				setList(webTracks, "web");
+    				if(!conectionError){
+	    				List<Track> allLocalTracks = trackDAO.getAllTracksFromLocalDB();
+	    				LocalTracksFilter.filter(webTracks, allLocalTracks);
+	    				setList(webTracks, "web");
+    				}
     				
     			} else {
     				showAlertDialog("Server is temporarily unavailable", "Connection error");
@@ -407,9 +421,9 @@ public class FragmentActivityMy extends FragmentActivity {
 		return localDataBase;
 	}   
 	
-	 private void showAlertDialog(String msg, String title) {
+	public static void showAlertDialog(String msg, String title) {
 			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-					this);
+					context);
 			alertDialogBuilder.setTitle(title);
 			alertDialogBuilder
 				.setMessage(msg)

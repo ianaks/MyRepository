@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="horizontal" >
 
-    <fragment class="test.FragmentList"
+    <fragment class="com.testapplication.view.FragmentList"
     	android:id="@+id/fragment_list"
     	android:layout_weight="1"
     	android:layout_width="match_parent"

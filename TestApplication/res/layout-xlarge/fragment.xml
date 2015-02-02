@@ -4,21 +4,21 @@
     android:layout_height="fill_parent"
     android:orientation="horizontal" >
 
-    <fragment class="test.FragmentList"
+    <fragment class="com.testapplication.view.FragmentList"
     	android:id="@+id/fragment_list"
     	android:layout_weight="1"
     	android:layout_width="match_parent"
     	android:layout_height="match_parent" >
     </fragment>
 
-    <fragment class="test.FragmentDetail"
+    <fragment class="com.testapplication.view.FragmentDetail"
     	android:id="@+id/fragment_detail"
     	android:layout_weight="1"
     	android:layout_width="match_parent"
     	android:layout_height="match_parent" >
     </fragment>
     
-    <fragment class="test.FragmentRating"
+ 	<fragment class="com.testapplication.view.FragmentRating"
     	android:id="@+id/fragment_rating"
     	android:layout_weight="1"
     	android:visibility="gone"
